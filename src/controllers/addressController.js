@@ -7,8 +7,7 @@ const getUserAddresses = async (req, res) => {
     const { data: addresses, error } = await supabaseAdmin
       .from('direcciones_envio')
       .select('*')
-      .eq('usuario_id', userId)
-      .order('fecha_creacion', { ascending: false });
+      .eq('usuario_id', userId);
 
     if (error) {
       throw error;
@@ -22,8 +21,7 @@ const getUserAddresses = async (req, res) => {
       state: addr.estado,
       zipCode: addr.codigo_postal,
       country: addr.pais,
-      phone: addr.telefono,
-      createdAt: addr.fecha_creacion
+      phone: addr.telefono
     }));
 
     res.json({ addresses: formattedAddresses });
@@ -67,8 +65,7 @@ const createAddress = async (req, res) => {
       state: address.estado,
       zipCode: address.codigo_postal,
       country: address.pais,
-      phone: address.telefono,
-      createdAt: address.fecha_creacion
+      phone: address.telefono
     };
 
     res.status(201).json({

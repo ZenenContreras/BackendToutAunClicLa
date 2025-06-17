@@ -12,7 +12,13 @@
     "test:verification": "node scripts/test-verification.js",
     "test:data": "node scripts/test-data.js",
     "test:complete": "node scripts/complete-tests.js",
+    "test:favorites": "node scripts/test-favorites.js",
+    "test:reviews": "node scripts/test-reviews.js",
+    "test:addresses": "node scripts/test-addresses.js",
+    "test:login": "node scripts/test-login-validation.js",
+    "test:system": "node scripts/test-complete-system.js",
     "setup-db": "node scripts/setup-database.js",
+    "prepare-db": "node scripts/prepare-database.js",
     "migrate:detalles-pedido": "node scripts/create-detalles-pedido.js"
   },
   "keywords": [

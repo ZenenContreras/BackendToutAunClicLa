@@ -128,6 +128,15 @@ const login = async (req, res) => {
       });
     }
 
+    // Check if user is verified
+    if (!user.verificado) {
+      return res.status(403).json({
+        error: 'Account not verified',
+        message: 'Please verify your email address before logging in. Check your email for the verification link.',
+        needsVerification: true
+      });
+    }
+
     // Check if account is locked
     if (user.cuenta_bloqueada) {
       const bloqueoExpira = new Date(user.fecha_bloqueo);
