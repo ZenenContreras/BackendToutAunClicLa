@@ -18,7 +18,7 @@ export const sendVerificationEmail = async (email, verificationCode, userName) =
     const { data, error } = await resend.emails.send({
       from: 'ToutAunClicLa <noreply@toutaunclicla.com>',
       to: [email],
-      subject: '🔐 Verifica tu cuenta en ToutAunClicLa',
+      subject: '🔐 Vérifiez votre compte ToutAunClicLa',
       html: getVerificationEmailTemplate(verificationCode, userName),
     });
 
@@ -43,7 +43,7 @@ export const sendWelcomeEmail = async (email, userName) => {
     const { data, error } = await resend.emails.send({
       from: 'ToutAunClicLa <welcome@toutaunclicla.com>',
       to: [email],
-      subject: '🎉 ¡Bienvenido a ToutAunClicLa!',
+      subject: '🎉 Bienvenue chez ToutAunClicLa !',
       html: getWelcomeEmailTemplate(userName),
     });
 

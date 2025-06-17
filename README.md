@@ -39,6 +39,7 @@ npm install
 
 3. **Configura las variables de entorno:**
 
+<<<<<<< HEAD
 4. **Configura Resend:**
 - Ve a [Resend](https://resend.com) y crea una cuenta
 - Obtén tu API Key desde el dashboard
@@ -46,6 +47,10 @@ npm install
 - Agrega la API Key a tu archivo `.env`
 
 5. **Configura la base de datos:**
+=======
+
+4. **Configura la base de datos:**
+>>>>>>> e8f8f8861edd2ace9d3d01a3cd5a160bc5d0b38f
 - Ve a tu proyecto de Supabase
 - Ejecuta el script SQL en `database/schema.sql` en el SQL Editor
 - Esto creará todas las tablas necesarias
