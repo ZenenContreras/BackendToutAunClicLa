@@ -9,6 +9,7 @@
     "dev": "nodemon src/server.js",
     "test": "jest",
     "test:emails": "node scripts/test-emails.js",
+    "test:verification": "node scripts/test-verification.js",
     "setup-db": "node scripts/setup-database.js"
   },
   "keywords": [

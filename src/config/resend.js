@@ -61,11 +61,11 @@ export const sendWelcomeEmail = async (email, userName) => {
 // Template para email de verificación
 const getVerificationEmailTemplate = (verificationCode, userName) => `
 <!DOCTYPE html>
-<html lang="es">
+<html lang="fr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Verifica tu cuenta</title>
+    <title>Vérifiez votre compte</title>
     <style>
         body {
             margin: 0;
@@ -207,60 +207,60 @@ const getVerificationEmailTemplate = (verificationCode, userName) => `
     <div class="container">
         <div class="header">
             <div class="logo">🏪 ToutAunClicLa</div>
-            <p class="tagline">Productos únicos de América Latina</p>
+            <p class="tagline">Produits uniques d'Amérique Latine</p>
         </div>
         
         <div class="content">
-            <h1 class="greeting">¡Hola ${userName || 'Usuario'}! 👋</h1>
+            <h1 class="greeting">Bonjour ${userName || 'Utilisateur'} ! 👋</h1>
             
             <p class="message">
-                Gracias por registrarte en <strong>ToutAunClicLa</strong>. Para completar la creación de tu cuenta y acceder a nuestros productos exclusivos de América Latina, necesitamos verificar tu dirección de correo electrónico.
+                Merci de vous être inscrit sur <strong>ToutAunClicLa</strong>. Pour finaliser la création de votre compte et accéder à nos produits exclusifs d'Amérique Latine, nous devons vérifier votre adresse e-mail.
             </p>
             
             <div class="verification-box">
-                <div class="verification-label">Tu código de verificación</div>
+                <div class="verification-label">Votre code de vérification</div>
                 <div class="verification-code">${verificationCode}</div>
                 <div class="code-instruction">
-                    Ingresa este código en la aplicación para verificar tu cuenta
+                    Saisissez ce code dans l'application pour vérifier votre compte
                 </div>
             </div>
             
             <div class="warning">
-                <strong>⏰ Importante:</strong> Este código expira en 15 minutos por seguridad. Si no lo usas a tiempo, puedes solicitar uno nuevo desde la aplicación.
+                <strong>⏰ Important :</strong> Ce code expire dans 15 minutes pour des raisons de sécurité. Si vous ne l'utilisez pas à temps, vous pouvez en demander un nouveau depuis l'application.
             </div>
             
             <div class="divider"></div>
             
             <p class="message">
-                Una vez verificada tu cuenta, podrás:
-                <br>• Explorar productos auténticos de toda América Latina
-                <br>• Realizar compras seguras con Stripe
-                <br>• Guardar tus productos favoritos
-                <br>• Recibir ofertas exclusivas
+                Une fois votre compte vérifié, vous pourrez :
+                <br>• Explorer des produits authentiques de toute l'Amérique Latine
+                <br>• Effectuer des achats sécurisés avec Stripe
+                <br>• Sauvegarder vos produits favoris
+                <br>• Recevoir des offres exclusives
             </p>
         </div>
         
         <div class="footer">
             <p class="footer-text">
-                Si no creaste esta cuenta, puedes ignorar este correo.
+                Si vous n'avez pas créé ce compte, vous pouvez ignorer cet e-mail.
                 <br>
-                ¿Necesitas ayuda? Contáctanos en 
+                Besoin d'aide ? Contactez-nous à 
                 <a href="mailto:soporte@toutaunclicla.com" class="footer-link">soporte@toutaunclicla.com</a>
             </p>
             
             <div class="social-links">
                 <a href="#" class="social-link">📱 App</a>
                 <a href="#" class="social-link">🌐 Web</a>
-                <a href="#" class="social-link">📧 Soporte</a>
+                <a href="#" class="social-link">📧 Support</a>
             </div>
             
             <div class="divider"></div>
             
             <p class="footer-text">
-                © 2024 ToutAunClicLa. Todos los derechos reservados.
+                © 2024 ToutAunClicLa. Tous droits réservés.
                 <br>
-                <a href="#" class="footer-link">Política de Privacidad</a> • 
-                <a href="#" class="footer-link">Términos de Servicio</a>
+                <a href="#" class="footer-link">Politique de Confidentialité</a> • 
+                <a href="#" class="footer-link">Conditions de Service</a>
             </p>
         </div>
     </div>
@@ -271,11 +271,11 @@ const getVerificationEmailTemplate = (verificationCode, userName) => `
 // Template para email de bienvenida
 const getWelcomeEmailTemplate = (userName) => `
 <!DOCTYPE html>
-<html lang="es">
+<html lang="fr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>¡Bienvenido a ToutAunClicLa!</title>
+    <title>Bienvenue chez ToutAunClicLa !</title>
     <style>
         body {
             margin: 0;
@@ -411,52 +411,52 @@ const getWelcomeEmailTemplate = (userName) => `
     <div class="container">
         <div class="header">
             <div class="logo">🏪 ToutAunClicLa</div>
-            <p class="welcome-message">¡Tu aventura latinoamericana comienza aquí!</p>
+            <p class="welcome-message">Votre aventure latino-américaine commence ici !</p>
         </div>
         
         <div class="content">
-            <h1 class="greeting">¡Bienvenido ${userName}! 🎉</h1>
+            <h1 class="greeting">Bienvenue ${userName} ! 🎉</h1>
             
             <p class="message">
-                Tu cuenta ha sido verificada exitosamente. Ahora puedes explorar la colección más auténtica de productos de América Latina, desde artesanías tradicionales hasta innovaciones modernas.
+                Votre compte a été vérifié avec succès. Vous pouvez maintenant explorer la collection la plus authentique de produits d'Amérique Latine, des artisanats traditionnels aux innovations modernes.
             </p>
             
             <div class="features">
                 <div class="feature">
                     <div class="feature-icon">🎁</div>
                     <div class="feature-content">
-                        <div class="feature-title">Productos Únicos</div>
-                        <div class="feature-description">Descubre artesanías, comidas y productos exclusivos de toda América Latina</div>
+                        <div class="feature-title">Produits Uniques</div>
+                        <div class="feature-description">Découvrez des artisanats, aliments et produits exclusifs de toute l'Amérique Latine</div>
                     </div>
                 </div>
                 
                 <div class="feature">
                     <div class="feature-icon">🛡️</div>
                     <div class="feature-content">
-                        <div class="feature-title">Compras Seguras</div>
-                        <div class="feature-description">Pagos protegidos con Stripe y envíos seguros a toda América</div>
+                        <div class="feature-title">Achats Sécurisés</div>
+                        <div class="feature-description">Paiements protégés avec Stripe et expéditions sécurisées dans toute l'Amérique</div>
                     </div>
                 </div>
                 
                 <div class="feature">
                     <div class="feature-icon">⭐</div>
                     <div class="feature-content">
-                        <div class="feature-title">Ofertas Exclusivas</div>
-                        <div class="feature-description">Acceso prioritario a descuentos y productos de edición limitada</div>
+                        <div class="feature-title">Offres Exclusives</div>
+                        <div class="feature-description">Accès prioritaire aux réductions et produits en édition limitée</div>
                     </div>
                 </div>
             </div>
             
             <div style="text-align: center;">
-                <a href="#" class="cta-button">🛍️ Comenzar a Comprar</a>
+                <a href="#" class="cta-button">🛍️ Commencer à Acheter</a>
             </div>
         </div>
         
         <div class="footer">
             <p class="footer-text">
-                Gracias por unirte a nuestra comunidad de amantes de la cultura latinoamericana.
+                Merci de rejoindre notre communauté d'amoureux de la culture latino-américaine.
                 <br>
-                ¿Preguntas? Escríbenos a <a href="mailto:soporte@toutaunclicla.com" class="footer-link">soporte@toutaunclicla.com</a>
+                Des questions ? Écrivez-nous à <a href="mailto:soporte@toutaunclicla.com" class="footer-link">soporte@toutaunclicla.com</a>
             </p>
         </div>
     </div>
