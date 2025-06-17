@@ -1,4 +1,4 @@
-const { supabaseAdmin } = require('../config/supabase');
+import { supabaseAdmin } from '../config/supabase.js';
 
 const getAllProducts = async (req, res) => {
   try {
@@ -7,29 +7,30 @@ const getAllProducts = async (req, res) => {
       limit = 20, 
       category, 
       search, 
-      sortBy = 'created_at', 
+      sortBy = 'fecha_creacion', 
       sortOrder = 'desc' 
     } = req.query;
 
     const offset = (page - 1) * limit;
 
     let query = supabaseAdmin
-      .from('products')
+      .from('productos')
       .select(`
         *,
-        reviews(rating),
-        categories(name)
-      `, { count: 'exact' })
-      .eq('is_active', true);
+        reviews(estrellas),
+        categorias(nombre)
+      `, { count: 'exact' });
+
+    // No filtrar por 'activo' ya que la columna no existe en la tabla actual
 
     // Filter by category
     if (category) {
-      query = query.eq('category_id', category);
+      query = query.eq('categoria_id', category);
     }
 
     // Search functionality
     if (search) {
-      query = query.or(`name.ilike.%${search}%,description.ilike.%${search}%`);
+      query = query.or(`nombre.ilike.%${search}%,descripcion.ilike.%${search}%`);
     }
 
     // Sorting
@@ -48,7 +49,7 @@ const getAllProducts = async (req, res) => {
     const productsWithRating = products.map(product => ({
       ...product,
       averageRating: product.reviews.length > 0 
-        ? product.reviews.reduce((sum, review) => sum + review.rating, 0) / product.reviews.length
+        ? product.reviews.reduce((sum, review) => sum + review.estrellas, 0) / product.reviews.length
         : 0,
       reviewCount: product.reviews.length
     }));
@@ -76,20 +77,19 @@ const getProductById = async (req, res) => {
     const { id } = req.params;
 
     const { data: product, error } = await supabaseAdmin
-      .from('products')
+      .from('productos')
       .select(`
         *,
-        categories(name),
+        categorias(nombre),
         reviews(
           id,
-          rating,
-          comment,
-          created_at,
-          users(first_name, last_name)
+          estrellas,
+          comentario,
+          fecha_creacion,
+          usuarios(nombre, apellido)
         )
       `)
       .eq('id', id)
-      .eq('is_active', true)
       .single();
 
     if (error || !product) {
@@ -101,7 +101,7 @@ const getProductById = async (req, res) => {
 
     // Calculate average rating
     const averageRating = product.reviews.length > 0
-      ? product.reviews.reduce((sum, review) => sum + review.rating, 0) / product.reviews.length
+      ? product.reviews.reduce((sum, review) => sum + review.estrellas, 0) / product.reviews.length
       : 0;
 
     res.json({
@@ -123,15 +123,14 @@ const createProduct = async (req, res) => {
     const { name, description, price, categoryId, images, stock } = req.body;
 
     const { data: product, error } = await supabaseAdmin
-      .from('products')
+      .from('productos')
       .insert([{
-        name,
-        description,
-        price,
-        category_id: categoryId,
-        images,
-        stock,
-        is_active: true
+        nombre: name,
+        descripcion: description,
+        precio: price,
+        categoria_id: categoryId,
+        imagen_principal: images?.[0] || null, // Usar la primera imagen como principal
+        stock: stock || 0
       }])
       .select()
       .single();
@@ -156,10 +155,19 @@ const createProduct = async (req, res) => {
 const updateProduct = async (req, res) => {
   try {
     const { id } = req.params;
-    const updateData = req.body;
+    const { name, description, price, categoryId, images, stock } = req.body;
+
+    // Map frontend fields to Spanish database fields
+    const updateData = {};
+    if (name !== undefined) updateData.nombre = name;
+    if (description !== undefined) updateData.descripcion = description;
+    if (price !== undefined) updateData.precio = price;
+    if (categoryId !== undefined) updateData.categoria_id = categoryId;
+    if (images !== undefined && images.length > 0) updateData.imagen_principal = images[0];
+    if (stock !== undefined) updateData.stock = stock;
 
     const { data: product, error } = await supabaseAdmin
-      .from('products')
+      .from('productos')
       .update(updateData)
       .eq('id', id)
       .select()
@@ -193,10 +201,24 @@ const deleteProduct = async (req, res) => {
   try {
     const { id } = req.params;
 
-    // Soft delete - set is_active to false
+    // Verificar que el producto existe antes de eliminarlo
+    const { data: existingProduct, error: checkError } = await supabaseAdmin
+      .from('productos')
+      .select('id')
+      .eq('id', id)
+      .single();
+
+    if (checkError || !existingProduct) {
+      return res.status(404).json({
+        error: 'Product not found',
+        message: 'The requested product does not exist'
+      });
+    }
+
+    // Eliminar el producto (hard delete)
     const { error } = await supabaseAdmin
-      .from('products')
-      .update({ is_active: false })
+      .from('productos')
+      .delete()
       .eq('id', id);
 
     if (error) {
@@ -215,7 +237,7 @@ const deleteProduct = async (req, res) => {
   }
 };
 
-module.exports = {
+export {
   getAllProducts,
   getProductById,
   createProduct,

@@ -1,5 +1,6 @@
-const jwt = require('jsonwebtoken');
-const { supabaseAdmin } = require('../config/supabase');
+import jwt from 'jsonwebtoken';
+import { supabaseAdmin } from '../config/supabase.js';
+import { JWT_SECRET } from '../config/env.js';
 
 const authMiddleware = async (req, res, next) => {
   try {
@@ -15,11 +16,11 @@ const authMiddleware = async (req, res, next) => {
     const token = authHeader.substring(7); // Remove 'Bearer ' prefix
 
     // Verify JWT token
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const decoded = jwt.verify(token, JWT_SECRET);
     
     // Get user from Supabase
     const { data: user, error } = await supabaseAdmin
-      .from('users')
+      .from('usuarios')
       .select('*')
       .eq('id', decoded.userId)
       .single();
@@ -28,6 +29,14 @@ const authMiddleware = async (req, res, next) => {
       return res.status(401).json({ 
         error: 'Access denied', 
         message: 'Invalid token or user not found' 
+      });
+    }
+
+    // Check if user account is blocked
+    if (user.cuenta_bloqueada) {
+      return res.status(403).json({ 
+        error: 'Access denied', 
+        message: user.razon_bloqueo || 'Account is blocked' 
       });
     }
 
@@ -43,8 +52,16 @@ const authMiddleware = async (req, res, next) => {
   }
 };
 
+// Since there's no role field in the new schema, we'll create a simple admin check
+// You can modify this based on your admin identification logic
 const adminMiddleware = (req, res, next) => {
-  if (req.user && req.user.role === 'admin') {
+  // For now, we'll check if the user email contains 'admin' or is in a predefined list
+  const adminEmails = process.env.ADMIN_EMAILS ? process.env.ADMIN_EMAILS.split(',') : [];
+  
+  if (req.user && (
+    req.user.correo_electronico.includes('admin') || 
+    adminEmails.includes(req.user.correo_electronico)
+  )) {
     next();
   } else {
     return res.status(403).json({ 
@@ -54,7 +71,7 @@ const adminMiddleware = (req, res, next) => {
   }
 };
 
-module.exports = {
+export {
   authMiddleware,
   adminMiddleware
 };

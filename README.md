@@ -1,16 +1,18 @@
 # Toutaunclicla API
 
-API REST completa para aplicación de e-commerce construida con Express.js, Supabase y Stripe.
+API REST completa para aplicación de e-commerce construida con Express.js, Supabase, Stripe y Resend.
 
 ## 🚀 Características
 
 - **Autenticación JWT** con registro y login de usuarios
+- **Verificación por email** con códigos de 6 dígitos usando Resend
 - **Gestión de productos** con categorías, imágenes y stock
 - **Carrito de compras** con persistencia
 - **Sistema de reseñas** para productos
 - **Gestión de direcciones** de usuarios
 - **Procesamiento de pagos** con Stripe
 - **Panel de administración** para gestión de productos y pedidos
+- **Emails profesionales** con plantillas HTML responsivas
 - **Rate limiting** y validación de datos
 - **Seguridad** con CORS, Helmet y middlewares de autenticación
 
@@ -19,6 +21,7 @@ API REST completa para aplicación de e-commerce construida con Express.js, Supa
 - Node.js 16+
 - Cuenta de Supabase
 - Cuenta de Stripe
+- Cuenta de Resend para emails
 - npm o yarn
 
 ## 🛠️ Instalación
@@ -58,9 +61,21 @@ STRIPE_WEBHOOK_SECRET=your_stripe_webhook_secret
 
 # CORS
 FRONTEND_URL=http://localhost:3000
+
+# Resend (Email Service)
+RESEND_API_KEY=re_your_resend_api_key
+
+# Admin Emails (comma separated)
+ADMIN_EMAILS=admin@toutaunclicla.com,support@toutaunclicla.com
 ```
 
-4. **Configura la base de datos:**
+4. **Configura Resend:**
+- Ve a [Resend](https://resend.com) y crea una cuenta
+- Obtén tu API Key desde el dashboard
+- Agrega tu dominio verificado o usa el dominio sandbox para desarrollo
+- Agrega la API Key a tu archivo `.env`
+
+5. **Configura la base de datos:**
 - Ve a tu proyecto de Supabase
 - Ejecuta el script SQL en `database/schema.sql` en el SQL Editor
 - Esto creará todas las tablas necesarias
@@ -85,21 +100,65 @@ http://localhost:3000/api
 
 #### Registro de usuario
 ```http
-POST /api/auth/register
+POST /api/v1/auth/register
 Content-Type: application/json
 
 {
   "email": "usuario@ejemplo.com",
   "password": "contraseña123",
-  "firstName": "Juan",
-  "lastName": "Pérez",
-  "phone": "+1234567890"
+  "nombre": "Juan Pérez",
+  "telefono": "+1234567890"
+}
+```
+
+**Respuesta exitosa:**
+```json
+{
+  "message": "User registered successfully. Please check your email for verification code.",
+  "user": {
+    "id": "uuid",
+    "email": "usuario@ejemplo.com",
+    "nombre": "Juan Pérez",
+    "telefono": "+1234567890",
+    "verified": false,
+    "createdAt": "2024-01-01T00:00:00.000Z"
+  },
+  "token": "jwt_token",
+  "verificationRequired": true
+}
+```
+
+#### Verificar email con código
+```http
+POST /api/v1/auth/verify-email
+Content-Type: application/json
+
+{
+  "code": "123456"
+}
+```
+
+**Respuesta exitosa:**
+```json
+{
+  "message": "Email verified successfully",
+  "verified": true
+}
+```
+
+#### Reenviar código de verificación
+```http
+POST /api/v1/auth/resend-verification
+Content-Type: application/json
+
+{
+  "email": "usuario@ejemplo.com"
 }
 ```
 
 #### Inicio de sesión
 ```http
-POST /api/auth/login
+POST /api/v1/auth/login
 Content-Type: application/json
 
 {
@@ -110,7 +169,7 @@ Content-Type: application/json
 
 #### Obtener perfil
 ```http
-GET /api/auth/profile
+GET /api/v1/auth/profile
 Authorization: Bearer <token>
 ```
 

@@ -1,5 +1,5 @@
-const { supabaseAdmin } = require('../config/supabase');
-const stripe = require('../config/stripe');
+import { supabaseAdmin } from '../config/supabase.js';
+import stripe from '../config/stripe.js';
 
 const getUserOrders = async (req, res) => {
   try {
@@ -9,23 +9,23 @@ const getUserOrders = async (req, res) => {
     const offset = (page - 1) * limit;
 
     let query = supabaseAdmin
-      .from('orders')
+      .from('pedidos')
       .select(`
         *,
-        order_items(
+        detalles_pedido(
           *,
-          products(name, price, images)
+          productos(nombre, precio, imagen_principal)
         ),
-        addresses(*)
+        direcciones_envio(*)
       `, { count: 'exact' })
-      .eq('user_id', userId);
+      .eq('usuario_id', userId);
 
     if (status) {
       query = query.eq('status', status);
     }
 
     query = query
-      .order('created_at', { ascending: false })
+      .order('fecha_creacion', { ascending: false })
       .range(offset, offset + limit - 1);
 
     const { data: orders, error, count } = await query;
@@ -58,17 +58,17 @@ const getOrderById = async (req, res) => {
     const userId = req.user.id;
 
     const { data: order, error } = await supabaseAdmin
-      .from('orders')
+      .from('pedidos')
       .select(`
         *,
-        order_items(
+        detalles_pedido(
           *,
-          products(name, price, images)
+          productos(nombre, precio, imagen_principal)
         ),
-        addresses(*)
+        direcciones_envio(*)
       `)
       .eq('id', id)
-      .eq('user_id', userId)
+      .eq('usuario_id', userId)
       .single();
 
     if (error || !order) {
@@ -95,12 +95,12 @@ const createOrder = async (req, res) => {
 
     // Get cart items
     const { data: cartItems, error: cartError } = await supabaseAdmin
-      .from('cart_items')
+      .from('carrito_productos')
       .select(`
         *,
-        products(id, name, price, stock, is_active)
+        productos(id, nombre, precio, stock)
       `)
-      .eq('user_id', userId);
+      .eq('usuario_id', userId);
 
     if (cartError) {
       throw cartError;
@@ -118,38 +118,33 @@ const createOrder = async (req, res) => {
     const orderItems = [];
 
     for (const item of cartItems) {
-      const product = item.products;
+      const product = item.productos;
       
-      if (!product.is_active) {
-        return res.status(400).json({
-          error: 'Product unavailable',
-          message: `Product ${product.name} is no longer available`
-        });
-      }
+      // No hay campo 'activo', así que eliminamos esa validación
 
       if (product.stock < item.quantity) {
         return res.status(400).json({
           error: 'Insufficient stock',
-          message: `Only ${product.stock} units of ${product.name} available`
+          message: `Only ${product.stock} units of ${product.nombre} available`
         });
       }
 
-      const itemTotal = product.price * item.quantity;
+      const itemTotal = product.precio * item.quantity;
       total += itemTotal;
 
       orderItems.push({
-        product_id: product.id,
+        producto_id: product.id,
         quantity: item.quantity,
-        price: product.price
+        price: product.precio
       });
     }
 
     // Verify address belongs to user
     const { data: address, error: addressError } = await supabaseAdmin
-      .from('addresses')
+      .from('direcciones_envio')
       .select('*')
       .eq('id', addressId)
-      .eq('user_id', userId)
+      .eq('usuario_id', userId)
       .single();
 
     if (addressError || !address) {
@@ -178,12 +173,12 @@ const createOrder = async (req, res) => {
 
     // Create order
     const { data: order, error: orderError } = await supabaseAdmin
-      .from('orders')
+      .from('pedidos')
       .insert([{
-        user_id: userId,
-        address_id: addressId,
-        total_amount: total,
-        status: 'pending',
+        usuario_id: userId,
+        direccion_envio_id: addressId,
+        total: total,
+        estado: 'pendiente',
         stripe_payment_intent_id: paymentIntent.id
       }])
       .select()
@@ -196,11 +191,11 @@ const createOrder = async (req, res) => {
     // Create order items
     const orderItemsWithOrderId = orderItems.map(item => ({
       ...item,
-      order_id: order.id
+      pedido_id: order.id
     }));
 
     const { error: itemsError } = await supabaseAdmin
-      .from('order_items')
+      .from('detalles_pedido')
       .insert(orderItemsWithOrderId);
 
     if (itemsError) {
@@ -210,30 +205,30 @@ const createOrder = async (req, res) => {
     // Update product stock
     for (const item of cartItems) {
       await supabaseAdmin
-        .from('products')
+        .from('productos')
         .update({ 
-          stock: item.products.stock - item.quantity 
+          stock: item.productos.stock - item.quantity 
         })
-        .eq('id', item.products.id);
+        .eq('id', item.productos.id);
     }
 
     // Clear cart
     await supabaseAdmin
-      .from('cart_items')
+      .from('carrito_productos')
       .delete()
-      .eq('user_id', userId);
+      .eq('usuario_id', userId);
 
     // Update order status to completed
     await supabaseAdmin
-      .from('orders')
-      .update({ status: 'completed' })
+      .from('pedidos')
+      .update({ estado: 'completado' })
       .eq('id', order.id);
 
     res.status(201).json({
       message: 'Order created successfully',
       order: {
         ...order,
-        status: 'completed'
+        estado: 'completado'
       }
     });
   } catch (error) {
@@ -252,10 +247,10 @@ const cancelOrder = async (req, res) => {
 
     // Get order
     const { data: order, error: orderError } = await supabaseAdmin
-      .from('orders')
+      .from('pedidos')
       .select('*')
       .eq('id', id)
-      .eq('user_id', userId)
+      .eq('usuario_id', userId)
       .single();
 
     if (orderError || !order) {
@@ -265,7 +260,7 @@ const cancelOrder = async (req, res) => {
       });
     }
 
-    if (order.status !== 'pending') {
+    if (order.estado !== 'pendiente') {
       return res.status(400).json({
         error: 'Cannot cancel order',
         message: 'Only pending orders can be cancelled'
@@ -279,8 +274,8 @@ const cancelOrder = async (req, res) => {
 
     // Update order status
     const { error } = await supabaseAdmin
-      .from('orders')
-      .update({ status: 'cancelled' })
+      .from('pedidos')
+      .update({ estado: 'cancelado' })
       .eq('id', id);
 
     if (error) {
@@ -306,26 +301,26 @@ const getAllOrders = async (req, res) => {
       page = 1, 
       limit = 20, 
       status, 
-      sortBy = 'created_at', 
+      sortBy = 'fecha_creacion', 
       sortOrder = 'desc' 
     } = req.query;
 
     const offset = (page - 1) * limit;
 
     let query = supabaseAdmin
-      .from('orders')
+      .from('pedidos')
       .select(`
         *,
-        users(first_name, last_name, email),
-        order_items(
+        usuarios(nombre, correo_electronico),
+        detalles_pedido(
           *,
-          products(name, price)
+          productos(nombre, precio)
         ),
-        addresses(*)
+        direcciones_envio(*)
       `, { count: 'exact' });
 
     if (status) {
-      query = query.eq('status', status);
+      query = query.eq('estado', status);
     }
 
     query = query
@@ -361,7 +356,7 @@ const updateOrderStatus = async (req, res) => {
     const { id } = req.params;
     const { status } = req.body;
 
-    const validStatuses = ['pending', 'processing', 'shipped', 'delivered', 'cancelled'];
+    const validStatuses = ['pendiente', 'procesando', 'enviado', 'entregado', 'cancelado'];
     
     if (!validStatuses.includes(status)) {
       return res.status(400).json({
@@ -371,8 +366,8 @@ const updateOrderStatus = async (req, res) => {
     }
 
     const { data: order, error } = await supabaseAdmin
-      .from('orders')
-      .update({ status })
+      .from('pedidos')
+      .update({ estado: status })
       .eq('id', id)
       .select()
       .single();
@@ -401,7 +396,7 @@ const updateOrderStatus = async (req, res) => {
   }
 };
 
-module.exports = {
+export {
   getUserOrders,
   getOrderById,
   createOrder,

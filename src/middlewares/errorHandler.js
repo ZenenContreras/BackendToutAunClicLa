@@ -1,3 +1,5 @@
+import { NODE_ENV } from '../config/env.js';
+
 const errorHandler = (err, req, res, next) => {
   console.error('Error:', err);
 
@@ -5,7 +7,7 @@ const errorHandler = (err, req, res, next) => {
   let error = {
     status: err.status || 500,
     message: err.message || 'Internal server error',
-    ...(process.env.NODE_ENV === 'development' && { stack: err.stack })
+    ...(NODE_ENV === 'development' && { stack: err.stack })
   };
 
   // Handle specific error types
@@ -35,13 +37,13 @@ const errorHandler = (err, req, res, next) => {
     error.message = 'Token expired';
   }
 
-  res.status(error.status).json({
+    res.status(error.status).json({
     error: error.message,
     ...(error.details && { details: error.details }),
-    ...(process.env.NODE_ENV === 'development' && { stack: error.stack })
+    ...(NODE_ENV === 'development' && { stack: error.stack })
   });
 };
 
-module.exports = {
+export {
   errorHandler
 };

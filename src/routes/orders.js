@@ -1,15 +1,15 @@
-const express = require('express');
-const { 
+import express from 'express';
+import { 
   getUserOrders, 
   getOrderById, 
   createOrder, 
   cancelOrder,
   getAllOrders,
   updateOrderStatus 
-} = require('../controllers/orderController');
-const { authMiddleware, adminMiddleware } = require('../middlewares/auth');
-const Joi = require('joi');
-const { validateRequest } = require('../middlewares/validation');
+} from '../controllers/orderController.js';
+import { authMiddleware, adminMiddleware } from '../middlewares/auth.js';
+import Joi from 'joi';
+import { validateRequest } from '../middlewares/validation.js';
 
 const router = express.Router();
 
@@ -33,4 +33,4 @@ router.put('/:id/cancel', authMiddleware, cancelOrder);
 router.get('/', authMiddleware, adminMiddleware, getAllOrders);
 router.put('/:id/status', authMiddleware, adminMiddleware, validateRequest(updateOrderStatusSchema), updateOrderStatus);
 
-module.exports = router;
+export default router;

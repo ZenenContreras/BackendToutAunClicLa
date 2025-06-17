@@ -1,22 +1,23 @@
-const express = require('express');
-const cors = require('cors');
-const helmet = require('helmet');
-const morgan = require('morgan');
-const compression = require('compression');
-require('dotenv').config();
+import express from 'express';
+import cors from 'cors';
+import helmet from 'helmet';
+import morgan from 'morgan';
+import compression from 'compression';
+import './config/env.js';
 
-const { errorHandler } = require('./middlewares/errorHandler');
-const { rateLimiter } = require('./middlewares/rateLimiter');
+import { errorHandler } from './middlewares/errorHandler.js';
+import { rateLimiter } from './middlewares/rateLimiter.js';
 
 // Import routes
-const authRoutes = require('./routes/auth');
-const userRoutes = require('./routes/users');
-const productRoutes = require('./routes/products');
-const addressRoutes = require('./routes/addresses');
-const reviewRoutes = require('./routes/reviews');
-const cartRoutes = require('./routes/cart');
-const orderRoutes = require('./routes/orders');
-const stripeRoutes = require('./routes/stripe');
+import authRoutes from './routes/auth.js';
+import userRoutes from './routes/users.js';
+import productRoutes from './routes/products.js';
+import addressRoutes from './routes/addresses.js';
+import reviewRoutes from './routes/reviews.js';
+import cartRoutes from './routes/cart.js';
+import orderRoutes from './routes/orders.js';
+import stripeRoutes from './routes/stripe.js';
+import arcjectMiddleware from './middlewares/arcjet.js';
 
 const app = express();
 
@@ -31,7 +32,7 @@ app.use(cors({
 }));
 
 // Rate limiting
-app.use(rateLimiter);
+app.use(arcjectMiddleware);
 
 // Logging
 app.use(morgan('combined'));
@@ -50,14 +51,14 @@ app.get('/health', (req, res) => {
 });
 
 // API routes
-app.use('/api/auth', authRoutes);
-app.use('/api/users', userRoutes);
-app.use('/api/products', productRoutes);
-app.use('/api/addresses', addressRoutes);
-app.use('/api/reviews', reviewRoutes);
-app.use('/api/cart', cartRoutes);
-app.use('/api/orders', orderRoutes);
-app.use('/api/stripe', stripeRoutes);
+app.use('/api/v1/auth', authRoutes);
+app.use('/api/v1/users', userRoutes);
+app.use('/api/v1/products', productRoutes);
+app.use('/api/v1/addresses', addressRoutes);
+app.use('/api/v1/reviews', reviewRoutes);
+app.use('/api/v1/cart', cartRoutes);
+app.use('/api/v1/orders', orderRoutes);
+app.use('/api/v1/stripe', stripeRoutes);
 
 // 404 handler
 app.use('*', (req, res) => {
@@ -77,4 +78,4 @@ app.listen(PORT, () => {
   console.log(`📚 API Documentation available at http://localhost:${PORT}/health`);
 });
 
-module.exports = app;
+export default app;

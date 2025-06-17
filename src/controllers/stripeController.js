@@ -1,5 +1,5 @@
-const stripe = require('../config/stripe');
-const { supabaseAdmin } = require('../config/supabase');
+import stripe from '../config/stripe.js';
+import { supabaseAdmin } from '../config/supabase.js';
 
 const createPaymentIntent = async (req, res) => {
   try {
@@ -211,7 +211,7 @@ const handleWebhook = async (req, res) => {
   }
 };
 
-module.exports = {
+export {
   createPaymentIntent,
   confirmPayment,
   getPaymentMethods,

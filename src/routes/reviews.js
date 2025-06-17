@@ -1,12 +1,12 @@
-const express = require('express');
-const { 
+import express from 'express';
+import { 
   getProductReviews, 
   createReview, 
   updateReview, 
   deleteReview 
-} = require('../controllers/reviewController');
-const { authMiddleware } = require('../middlewares/auth');
-const { validateRequest, reviewSchema } = require('../middlewares/validation');
+} from '../controllers/reviewController.js';
+import { authMiddleware } from '../middlewares/auth.js';
+import { validateRequest, reviewSchema } from '../middlewares/validation.js';
 
 const router = express.Router();
 
@@ -18,4 +18,4 @@ router.post('/', authMiddleware, validateRequest(reviewSchema), createReview);
 router.put('/:id', authMiddleware, updateReview);
 router.delete('/:id', authMiddleware, deleteReview);
 
-module.exports = router;
+export default router;

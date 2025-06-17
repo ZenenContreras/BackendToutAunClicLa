@@ -1,15 +1,15 @@
-const express = require('express');
-const { 
+import express from 'express';
+import { 
   createPaymentIntent, 
   confirmPayment, 
   getPaymentMethods, 
   savePaymentMethod, 
   deletePaymentMethod, 
   handleWebhook 
-} = require('../controllers/stripeController');
-const { authMiddleware } = require('../middlewares/auth');
-const Joi = require('joi');
-const { validateRequest } = require('../middlewares/validation');
+} from '../controllers/stripeController.js';
+import { authMiddleware } from '../middlewares/auth.js';
+import Joi from 'joi';
+import { validateRequest } from '../middlewares/validation.js';
 
 const router = express.Router();
 
@@ -38,4 +38,4 @@ router.get('/payment-methods', authMiddleware, getPaymentMethods);
 router.post('/payment-methods', authMiddleware, validateRequest(savePaymentMethodSchema), savePaymentMethod);
 router.delete('/payment-methods/:paymentMethodId', authMiddleware, deletePaymentMethod);
 
-module.exports = router;
+export default router;

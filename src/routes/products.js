@@ -1,13 +1,13 @@
-const express = require('express');
-const { 
+import express from 'express';
+import { 
   getAllProducts, 
   getProductById, 
   createProduct, 
   updateProduct, 
   deleteProduct 
-} = require('../controllers/productController');
-const { authMiddleware, adminMiddleware } = require('../middlewares/auth');
-const { validateRequest, productSchema } = require('../middlewares/validation');
+} from '../controllers/productController.js';
+import { authMiddleware, adminMiddleware } from '../middlewares/auth.js';
+import { validateRequest, productSchema } from '../middlewares/validation.js';
 
 const router = express.Router();
 
@@ -20,4 +20,4 @@ router.post('/', authMiddleware, adminMiddleware, validateRequest(productSchema)
 router.put('/:id', authMiddleware, adminMiddleware, updateProduct);
 router.delete('/:id', authMiddleware, adminMiddleware, deleteProduct);
 
-module.exports = router;
+export default router;

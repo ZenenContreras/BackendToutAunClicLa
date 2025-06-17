@@ -1,22 +1,22 @@
-const { supabaseAdmin } = require('../config/supabase');
+import { supabaseAdmin } from '../config/supabase.js';
 
 const getCart = async (req, res) => {
   try {
     const userId = req.user.id;
 
     const { data: cartItems, error } = await supabaseAdmin
-      .from('cart_items')
+      .from('carrito_productos')
       .select(`
         *,
-        products(
+        productos(
           id,
-          name,
-          price,
-          images,
+          nombre,
+          precio,
+          imagen_principal,
           stock
         )
       `)
-      .eq('user_id', userId);
+      .eq('usuario_id', userId);
 
     if (error) {
       throw error;
@@ -24,7 +24,7 @@ const getCart = async (req, res) => {
 
     // Calculate total
     const total = cartItems.reduce((sum, item) => {
-      return sum + (item.products.price * item.quantity);
+      return sum + (item.productos.precio * item.cantidad);
     }, 0);
 
     res.json({
@@ -48,8 +48,8 @@ const addToCart = async (req, res) => {
 
     // Check if product exists and has enough stock
     const { data: product, error: productError } = await supabaseAdmin
-      .from('products')
-      .select('id, stock, is_active')
+      .from('productos')
+      .select('id, stock')
       .eq('id', productId)
       .single();
 
@@ -60,12 +60,7 @@ const addToCart = async (req, res) => {
       });
     }
 
-    if (!product.is_active) {
-      return res.status(400).json({
-        error: 'Product unavailable',
-        message: 'This product is no longer available'
-      });
-    }
+    // No hay campo 'activo', así que eliminamos esa validación
 
     if (product.stock < quantity) {
       return res.status(400).json({
@@ -76,15 +71,15 @@ const addToCart = async (req, res) => {
 
     // Check if item already exists in cart
     const { data: existingItem } = await supabaseAdmin
-      .from('cart_items')
-      .select('id, quantity')
-      .eq('user_id', userId)
-      .eq('product_id', productId)
+      .from('carrito_productos')
+      .select('id, cantidad')
+      .eq('usuario_id', userId)
+      .eq('producto_id', productId)
       .single();
 
     if (existingItem) {
       // Update existing item
-      const newQuantity = existingItem.quantity + quantity;
+      const newQuantity = existingItem.cantidad + quantity;
       
       if (product.stock < newQuantity) {
         return res.status(400).json({
@@ -94,8 +89,8 @@ const addToCart = async (req, res) => {
       }
 
       const { data: updatedItem, error } = await supabaseAdmin
-        .from('cart_items')
-        .update({ quantity: newQuantity })
+        .from('carrito_productos')
+        .update({ cantidad: newQuantity })
         .eq('id', existingItem.id)
         .select()
         .single();
@@ -111,11 +106,11 @@ const addToCart = async (req, res) => {
     } else {
       // Create new cart item
       const { data: cartItem, error } = await supabaseAdmin
-        .from('cart_items')
+        .from('carrito_productos')
         .insert([{
-          user_id: userId,
-          product_id: productId,
-          quantity
+          usuario_id: userId,
+          producto_id: productId,
+          cantidad: quantity
         }])
         .select()
         .single();
@@ -146,13 +141,13 @@ const updateCartItem = async (req, res) => {
 
     // Get cart item with product info
     const { data: cartItem, error: cartError } = await supabaseAdmin
-      .from('cart_items')
+      .from('carrito_productos')
       .select(`
         *,
-        products(stock, is_active)
+        productos(stock)
       `)
       .eq('id', id)
-      .eq('user_id', userId)
+      .eq('usuario_id', userId)
       .single();
 
     if (cartError || !cartItem) {
@@ -162,25 +157,20 @@ const updateCartItem = async (req, res) => {
       });
     }
 
-    if (!cartItem.products.is_active) {
-      return res.status(400).json({
-        error: 'Product unavailable',
-        message: 'This product is no longer available'
-      });
-    }
+    // No hay campo 'activo', así que eliminamos esa validación
 
-    if (cartItem.products.stock < quantity) {
+    if (cartItem.productos.stock < quantity) {
       return res.status(400).json({
         error: 'Insufficient stock',
-        message: `Only ${cartItem.products.stock} items available`
+        message: `Only ${cartItem.productos.stock} items available`
       });
     }
 
     const { data: updatedItem, error } = await supabaseAdmin
-      .from('cart_items')
-      .update({ quantity })
+      .from('carrito_productos')
+      .update({ cantidad: quantity })
       .eq('id', id)
-      .eq('user_id', userId)
+      .eq('usuario_id', userId)
       .select()
       .single();
 
@@ -207,10 +197,10 @@ const removeFromCart = async (req, res) => {
     const userId = req.user.id;
 
     const { error } = await supabaseAdmin
-      .from('cart_items')
+      .from('carrito_productos')
       .delete()
       .eq('id', id)
-      .eq('user_id', userId);
+      .eq('usuario_id', userId);
 
     if (error) {
       throw error;
@@ -233,9 +223,9 @@ const clearCart = async (req, res) => {
     const userId = req.user.id;
 
     const { error } = await supabaseAdmin
-      .from('cart_items')
+      .from('carrito_productos')
       .delete()
-      .eq('user_id', userId);
+      .eq('usuario_id', userId);
 
     if (error) {
       throw error;
@@ -253,7 +243,7 @@ const clearCart = async (req, res) => {
   }
 };
 
-module.exports = {
+export {
   getCart,
   addToCart,
   updateCartItem,

@@ -1,4 +1,4 @@
-const { supabaseAdmin } = require('../config/supabase');
+import { supabaseAdmin } from '../config/supabase.js';
 
 const getProductReviews = async (req, res) => {
   try {
@@ -11,10 +11,10 @@ const getProductReviews = async (req, res) => {
       .from('reviews')
       .select(`
         *,
-        users(first_name, last_name)
+        usuarios(nombre, apellido)
       `, { count: 'exact' })
-      .eq('product_id', productId)
-      .order('created_at', { ascending: false })
+      .eq('producto_id', productId)
+      .order('fecha_creacion', { ascending: false })
       .range(offset, offset + limit - 1);
 
     if (error) {
@@ -46,7 +46,7 @@ const createReview = async (req, res) => {
 
     // Check if product exists
     const { data: product, error: productError } = await supabaseAdmin
-      .from('products')
+      .from('productos')
       .select('id')
       .eq('id', productId)
       .single();
@@ -62,8 +62,8 @@ const createReview = async (req, res) => {
     const { data: existingReview } = await supabaseAdmin
       .from('reviews')
       .select('id')
-      .eq('user_id', userId)
-      .eq('product_id', productId)
+      .eq('usuario_id', userId)
+      .eq('producto_id', productId)
       .single();
 
     if (existingReview) {
@@ -80,7 +80,7 @@ const createReview = async (req, res) => {
         id,
         orders(user_id, status)
       `)
-      .eq('product_id', productId)
+      .eq('producto_id', productId)
       .eq('orders.user_id', userId)
       .eq('orders.status', 'completed')
       .single();
@@ -95,14 +95,14 @@ const createReview = async (req, res) => {
     const { data: review, error } = await supabaseAdmin
       .from('reviews')
       .insert([{
-        user_id: userId,
-        product_id: productId,
-        rating,
-        comment
+        usuario_id: userId,
+        producto_id: productId,
+        estrellas: rating,
+        comentario: comment
       }])
       .select(`
         *,
-        users(first_name, last_name)
+        usuarios(nombre, apellido)
       `)
       .single();
 
@@ -131,12 +131,12 @@ const updateReview = async (req, res) => {
 
     const { data: review, error } = await supabaseAdmin
       .from('reviews')
-      .update({ rating, comment })
+      .update({ estrellas: rating, comentario: comment })
       .eq('id', id)
-      .eq('user_id', userId)
+      .eq('usuario_id', userId)
       .select(`
         *,
-        users(first_name, last_name)
+        usuarios(nombre, apellido)
       `)
       .single();
 
@@ -173,7 +173,7 @@ const deleteReview = async (req, res) => {
       .from('reviews')
       .delete()
       .eq('id', id)
-      .eq('user_id', userId);
+      .eq('usuario_id', userId);
 
     if (error) {
       throw error;
@@ -191,7 +191,7 @@ const deleteReview = async (req, res) => {
   }
 };
 
-module.exports = {
+export {
   getProductReviews,
   createReview,
   updateReview,

@@ -1,22 +1,22 @@
-const express = require('express');
-const { 
+import express from 'express';
+import { 
   updateProfile, 
   changePassword, 
   deleteAccount,
   getAllUsers,
-  updateUserRole 
-} = require('../controllers/userController');
-const { authMiddleware, adminMiddleware } = require('../middlewares/auth');
-const Joi = require('joi');
-const { validateRequest } = require('../middlewares/validation');
+  updateUserStatus
+} from '../controllers/userController.js';
+import { authMiddleware, adminMiddleware } from '../middlewares/auth.js';
+import Joi from 'joi';
+import { validateRequest } from '../middlewares/validation.js';
 
 const router = express.Router();
 
 // Validation schemas
 const updateProfileSchema = Joi.object({
-  firstName: Joi.string().min(2).required(),
-  lastName: Joi.string().min(2).required(),
-  phone: Joi.string().optional()
+  nombre: Joi.string().min(2).required(),
+  telefono: Joi.string().optional().allow(''),
+  avatarUrl: Joi.string().uri().optional().allow('')
 });
 
 const changePasswordSchema = Joi.object({
@@ -28,8 +28,13 @@ const deleteAccountSchema = Joi.object({
   password: Joi.string().required()
 });
 
-const updateRoleSchema = Joi.object({
-  role: Joi.string().valid('customer', 'admin').required()
+const updateUserStatusSchema = Joi.object({
+  blocked: Joi.boolean().required(),
+  reason: Joi.string().when('blocked', {
+    is: true,
+    then: Joi.required(),
+    otherwise: Joi.optional()
+  })
 });
 
 // User routes
@@ -39,6 +44,6 @@ router.delete('/account', authMiddleware, validateRequest(deleteAccountSchema), 
 
 // Admin routes
 router.get('/', authMiddleware, adminMiddleware, getAllUsers);
-router.put('/:id/role', authMiddleware, adminMiddleware, validateRequest(updateRoleSchema), updateUserRole);
+router.put('/:id/status', authMiddleware, adminMiddleware, validateRequest(updateUserStatusSchema), updateUserStatus);
 
-module.exports = router;
+export default router;
