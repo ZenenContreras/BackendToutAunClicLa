@@ -245,7 +245,7 @@ const getVerificationEmailTemplate = (verificationCode, userName) => `
                 Si vous n'avez pas créé ce compte, vous pouvez ignorer cet e-mail.
                 <br>
                 Besoin d'aide ? Contactez-nous à 
-                <a href="mailto:soporte@toutaunclicla.com" class="footer-link">soporte@toutaunclicla.com</a>
+                <a href="mailto:serviceclient@toutaunclicla.com" class="footer-link">serviceclient@toutaunclicla.com</a>
             </p>
             
             <div class="social-links">
