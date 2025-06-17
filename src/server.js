@@ -17,6 +17,7 @@ import reviewRoutes from './routes/reviews.js';
 import cartRoutes from './routes/cart.js';
 import orderRoutes from './routes/orders.js';
 import stripeRoutes from './routes/stripe.js';
+import favoritesRoutes from './routes/favorites.js';
 import arcjectMiddleware from './middlewares/arcjet.js';
 
 const app = express();
@@ -59,6 +60,7 @@ app.use('/api/v1/reviews', reviewRoutes);
 app.use('/api/v1/cart', cartRoutes);
 app.use('/api/v1/orders', orderRoutes);
 app.use('/api/v1/stripe', stripeRoutes);
+app.use('/api/v1/favorites', favoritesRoutes);
 
 // 404 handler
 app.use('*', (req, res) => {

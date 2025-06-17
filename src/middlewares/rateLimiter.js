@@ -22,7 +22,23 @@ const authRateLimiter = rateLimit({
   legacyHeaders: false,
 });
 
+const couponRateLimiter = rateLimit({
+  windowMs: 10 * 60 * 1000, // 10 minutes
+  max: 10, // limit each IP to 10 coupon attempts per windowMs
+  message: {
+    error: 'Too many coupon attempts',
+    message: 'Too many coupon attempts, please try again in 10 minutes'
+  },
+  standardHeaders: true,
+  legacyHeaders: false,
+  keyGenerator: (req) => {
+    // Rate limit by user ID if authenticated, otherwise by IP
+    return req.user?.id || req.ip;
+  }
+});
+
 export {
   rateLimiter,
-  authRateLimiter
+  authRateLimiter,
+  couponRateLimiter
 };

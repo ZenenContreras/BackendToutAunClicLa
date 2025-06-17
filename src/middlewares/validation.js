@@ -74,6 +74,21 @@ const cartItemSchema = Joi.object({
   quantity: Joi.number().integer().min(1).required()
 });
 
+// Favorites validation schemas
+const favoriteSchema = Joi.object({
+  productId: Joi.number().integer().positive().required()
+});
+
+// Coupon validation schemas
+const couponSchema = Joi.object({
+  couponCode: Joi.string().min(3).max(20).required()
+});
+
+// Cart with coupon validation
+const cartCouponSchema = Joi.object({
+  couponCode: Joi.string().min(3).max(20).optional()
+});
+
 export {
   validateRequest,
   userRegisterSchema,
@@ -83,5 +98,8 @@ export {
   productSchema,
   addressSchema,
   reviewSchema,
-  cartItemSchema
+  cartItemSchema,
+  favoriteSchema,
+  couponSchema,
+  cartCouponSchema
 };

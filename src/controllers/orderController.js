@@ -21,11 +21,11 @@ const getUserOrders = async (req, res) => {
       .eq('usuario_id', userId);
 
     if (status) {
-      query = query.eq('status', status);
+      query = query.eq('estado', status);
     }
 
     query = query
-      .order('fecha_creacion', { ascending: false })
+      .order('fecha_pedido', { ascending: false })
       .range(offset, offset + limit - 1);
 
     const { data: orders, error, count } = await query;
@@ -95,7 +95,7 @@ const createOrder = async (req, res) => {
 
     // Get cart items
     const { data: cartItems, error: cartError } = await supabaseAdmin
-      .from('carrito_productos')
+      .from('carrito')
       .select(`
         *,
         productos(id, nombre, precio, stock)
@@ -214,7 +214,7 @@ const createOrder = async (req, res) => {
 
     // Clear cart
     await supabaseAdmin
-      .from('carrito_productos')
+      .from('carrito')
       .delete()
       .eq('usuario_id', userId);
 

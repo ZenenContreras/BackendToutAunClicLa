@@ -10,7 +10,10 @@
     "test": "jest",
     "test:emails": "node scripts/test-emails.js",
     "test:verification": "node scripts/test-verification.js",
-    "setup-db": "node scripts/setup-database.js"
+    "test:data": "node scripts/test-data.js",
+    "test:complete": "node scripts/complete-tests.js",
+    "setup-db": "node scripts/setup-database.js",
+    "migrate:detalles-pedido": "node scripts/create-detalles-pedido.js"
   },
   "keywords": [
     "express",
