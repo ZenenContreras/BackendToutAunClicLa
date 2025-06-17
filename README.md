@@ -38,36 +38,6 @@ npm install
 ```
 
 3. **Configura las variables de entorno:**
-```bash
-cp .env.example .env
-```
-
-Edita el archivo `.env` con tus credenciales:
-```env
-NODE_ENV=development
-PORT=3000
-
-# Supabase Configuration
-SUPABASE_URL=your_supabase_url
-SUPABASE_ANON_KEY=your_supabase_anon_key
-SUPABASE_SERVICE_ROLE_KEY=your_supabase_service_role_key
-
-# JWT Secret
-JWT_SECRET=your_super_secret_jwt_key_here
-
-# Stripe Configuration
-STRIPE_SECRET_KEY=your_stripe_secret_key
-STRIPE_WEBHOOK_SECRET=your_stripe_webhook_secret
-
-# CORS
-FRONTEND_URL=http://localhost:3000
-
-# Resend (Email Service)
-RESEND_API_KEY=re_your_resend_api_key
-
-# Admin Emails (comma separated)
-ADMIN_EMAILS=admin@toutaunclicla.com,support@toutaunclicla.com
-```
 
 4. **Configura Resend:**
 - Ve a [Resend](https://resend.com) y crea una cuenta
