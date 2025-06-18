@@ -4,7 +4,7 @@ const envFile = `.env.${process.env.NODE_ENV || 'development'}.local`;
 config({ path: envFile });
 
 if (!process.env.PORT) {
-    process.env.PORT = 3001;
+    process.env.PORT = 5500;
 }
 
 export const { 
