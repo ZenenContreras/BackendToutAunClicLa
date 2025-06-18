@@ -6,11 +6,11 @@ import { authRateLimiter } from '../middlewares/rateLimiter.js';
 
 const router = express.Router();
 
-// Public routes
-router.post('/register', authRateLimiter, validateRequest(userRegisterSchema), register);
-router.post('/login', authRateLimiter, validateRequest(userLoginSchema), login);
-router.post('/verify-email', authRateLimiter, validateRequest(verificationCodeSchema), verifyEmail);
-router.post('/resend-verification', authRateLimiter, validateRequest(resendVerificationSchema), resendVerification);
+// Public routes - Temporarily disable rate limiter for testing
+router.post('/register', validateRequest(userRegisterSchema), register);
+router.post('/login', validateRequest(userLoginSchema), login);
+router.post('/verify-email', validateRequest(verificationCodeSchema), verifyEmail);
+router.post('/resend-verification', validateRequest(resendVerificationSchema), resendVerification);
 router.get('/verification-status', checkVerificationStatus);
 
 // Protected routes

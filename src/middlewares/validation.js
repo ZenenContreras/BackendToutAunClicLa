@@ -51,21 +51,60 @@ const productSchema = Joi.object({
   stock: Joi.number().integer().min(0).optional().default(0)
 });
 
-// Address validation schemas
+// Address validation schemas - Completamente flexible para ambos formatos
 const addressSchema = Joi.object({
-  street: Joi.string().required(),
-  city: Joi.string().required(),
-  state: Joi.string().required(),
-  zipCode: Joi.string().required(),
-  country: Joi.string().required(),
-  phone: Joi.string().optional()
-});
+  // === FORMATO BASE DE DATOS (direcciones_envio) ===
+  direccion: Joi.string().min(5).max(255).optional(),
+  ciudad: Joi.string().min(2).max(100).optional(),
+  estado: Joi.string().min(2).max(100).optional(),
+  codigo_postal: Joi.string().min(3).max(20).optional(),
+  pais: Joi.string().min(2).max(100).optional(),
+  telefono: Joi.string().min(8).max(20).optional().allow('', null),
+  
+  // === FORMATO FRONTEND (compatibilidad) ===
+  address: Joi.string().min(5).max(255).optional(),
+  city: Joi.string().min(2).max(100).optional(),
+  state: Joi.string().min(2).max(100).optional(),
+  postalCode: Joi.string().min(3).max(20).optional(),
+  country: Joi.string().min(2).max(100).optional(),
+  phone: Joi.string().min(8).max(20).optional().allow('', null)
+}).custom((value, helpers) => {
+  // Validación: debe tener al menos un conjunto completo de datos
+  const hasDBFormat = value.direccion && value.ciudad && value.estado && value.codigo_postal && value.pais;
+  const hasFrontendFormat = value.address && value.city && value.state && value.postalCode && value.country;
+  
+  if (!hasDBFormat && !hasFrontendFormat) {
+    return helpers.error('any.custom', {
+      message: 'Must provide either complete DB format (direccion, ciudad, estado, codigo_postal, pais) or frontend format (address, city, state, postalCode, country)'
+    });
+  }
+  
+  return value;
+}, 'Complete address validation');
 
 // Review validation schemas
 const reviewSchema = Joi.object({
   productId: Joi.number().integer().positive().required(),
-  rating: Joi.number().integer().min(1).max(5).required(),
-  comment: Joi.string().optional()
+  estrellas: Joi.number().integer().min(1).max(5).required(),
+  comentario: Joi.string().max(1000).optional().allow('', null),
+  // Campos alternativos para compatibilidad
+  rating: Joi.number().integer().min(1).max(5).optional(),
+  comment: Joi.string().max(1000).optional().allow('', null)
+}).custom((value, helpers) => {
+  // Usar el campo que esté disponible
+  const rating = value.estrellas || value.rating;
+  const comment = value.comentario || value.comment;
+  
+  if (!rating) {
+    return helpers.error('any.required', { label: 'estrellas or rating' });
+  }
+  
+  // Normalizar al formato de la base de datos
+  return {
+    ...value,
+    estrellas: rating,
+    comentario: comment
+  };
 });
 
 // Cart validation schemas

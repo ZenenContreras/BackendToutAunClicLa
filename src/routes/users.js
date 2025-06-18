@@ -1,11 +1,13 @@
 import express from 'express';
 import { 
   updateProfile, 
-  changePassword, 
   deleteAccount,
   getAllUsers,
   updateUserStatus
 } from '../controllers/userController.js';
+import { 
+  changePassword 
+} from '../controllers/authController.js';
 import { authMiddleware, adminMiddleware } from '../middlewares/auth.js';
 import Joi from 'joi';
 import { validateRequest } from '../middlewares/validation.js';

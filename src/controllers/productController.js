@@ -86,7 +86,7 @@ const getProductById = async (req, res) => {
           estrellas,
           comentario,
           fecha_creacion,
-          usuarios(nombre, apellido)
+          usuarios(nombre)
         )
       `)
       .eq('id', id)

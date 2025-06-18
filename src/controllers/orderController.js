@@ -25,7 +25,7 @@ const getUserOrders = async (req, res) => {
     }
 
     query = query
-      .order('fecha_pedido', { ascending: false })
+      .order('fecha_creacion', { ascending: false })
       .range(offset, offset + limit - 1);
 
     const { data: orders, error, count } = await query;

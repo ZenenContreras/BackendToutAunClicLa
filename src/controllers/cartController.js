@@ -3,6 +3,7 @@ import { supabaseAdmin } from '../config/supabase.js';
 const getCart = async (req, res) => {
   try {
     const userId = req.user.id;
+    
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 20; // Default 20 items per page
     const offset = (page - 1) * limit;
@@ -31,7 +32,7 @@ const getCart = async (req, res) => {
         )
       `)
       .eq('usuario_id', userId)
-      .order('created_at', { ascending: false })
+      .order('id', { ascending: false })
       .range(offset, offset + limit - 1);
 
     if (error) {
@@ -74,7 +75,8 @@ const getCart = async (req, res) => {
     console.error('Get cart error:', error);
     res.status(500).json({
       error: 'Failed to get cart',
-      message: error.message
+      message: error.message,
+      details: error.details || null
     });
   }
 };

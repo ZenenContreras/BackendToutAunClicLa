@@ -21,7 +21,7 @@ const getUserFavorites = async (req, res) => {
         )
       `, { count: 'exact' })
       .eq('usuario_id', userId)
-      .order('fecha_agregado', { ascending: false })
+      .order('id', { ascending: false })
       .range(offset, offset + limit - 1);
 
     if (error) {

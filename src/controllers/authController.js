@@ -10,16 +10,26 @@ const generateToken = (userId) => {
 };
 
 const generateVerificationCode = () => {
-  // Genera un código de 6 dígitos
   return Math.floor(100000 + Math.random() * 900000).toString();
 };
 
+// === REGISTRO DE USUARIO ===
 const register = async (req, res) => {
   try {
     const { email, password, nombre, telefono } = req.body;
     const clientIP = req.ip || req.connection.remoteAddress;
 
-    // Check if user already exists
+    console.log('🔐 Registro iniciado para:', email);
+
+    // Validación de entrada
+    if (!email || !password || !nombre) {
+      return res.status(400).json({
+        error: 'Missing required fields',
+        message: 'Email, password and name are required'
+      });
+    }
+
+    // Verificar si el usuario ya existe
     const { data: existingUser } = await supabaseAdmin
       .from('usuarios')
       .select('id')
@@ -33,31 +43,19 @@ const register = async (req, res) => {
       });
     }
 
-    // Hash password and store in auth.users (Supabase Auth)
-    const { data: authUser, error: authError } = await supabaseAdmin.auth.admin.createUser({
-      email,
-      password,
-      email_confirm: false,
-      user_metadata: {
-        nombre: nombre,
-        telefono: telefono
-      }
-    });
+    // Hash de la contraseña
+    const saltRounds = 12;
+    const hashedPassword = await bcrypt.hash(password, saltRounds);
 
-    if (authError) {
-      throw authError;
-    }
-
-    // Generate verification code
+    // Generar código de verificación
     const verificationCode = generateVerificationCode();
     const tokenExpiration = new Date();
-    tokenExpiration.setMinutes(tokenExpiration.getMinutes() + 15); // 15 minutes expiration
+    tokenExpiration.setMinutes(tokenExpiration.getMinutes() + 15);
 
-    // Create user in our custom usuarios table
+    // Crear usuario en la tabla personalizada
     const { data: user, error } = await supabaseAdmin
       .from('usuarios')
       .insert([{
-        id: authUser.user.id, // Use the same ID from auth.users
         correo_electronico: email,
         nombre: nombre,
         telefono: telefono || null,
@@ -65,26 +63,29 @@ const register = async (req, res) => {
         fecha_expiracion_token: tokenExpiration.toISOString(),
         ip_ultimo_acceso: clientIP,
         verificado: false,
-        autenticacion_social: false
+        autenticacion_social: false,
+        password_hash: hashedPassword
       }])
       .select('id, correo_electronico, nombre, telefono, verificado, fecha_creacion')
       .single();
 
     if (error) {
-      // If our table insert fails, clean up the auth user
-      await supabaseAdmin.auth.admin.deleteUser(authUser.user.id);
+      console.error('❌ Error en inserción de usuario:', error);
       throw error;
     }
 
-    // Send verification email
+    console.log('✅ Usuario creado exitosamente:', user.correo_electronico);
+
+    // Enviar email de verificación
     try {
       await sendVerificationEmail(email, verificationCode, nombre);
+      console.log('📧 Email de verificación enviado');
     } catch (emailError) {
-      console.error('Failed to send verification email:', emailError);
-      // Don't fail the registration if email fails, just log it
+      console.error('⚠️  Failed to send verification email:', emailError);
+      // No falla el registro si el email falla
     }
 
-    // Generate JWT token
+    // Generar token JWT
     const token = generateToken(user.id);
 
     res.status(201).json({
@@ -101,7 +102,7 @@ const register = async (req, res) => {
       verificationRequired: true
     });
   } catch (error) {
-    console.error('Register error:', error);
+    console.error('❌ Register error:', error);
     res.status(500).json({
       error: 'Registration failed',
       message: error.message
@@ -109,12 +110,23 @@ const register = async (req, res) => {
   }
 };
 
+// === LOGIN DE USUARIO ===
 const login = async (req, res) => {
   try {
     const { email, password } = req.body;
     const clientIP = req.ip || req.connection.remoteAddress;
 
-    // Find user by email
+    console.log('🔐 Login iniciado para:', email);
+
+    // Validación de entrada
+    if (!email || !password) {
+      return res.status(400).json({
+        error: 'Missing credentials',
+        message: 'Email and password are required'
+      });
+    }
+
+    // Buscar usuario por email
     const { data: user, error } = await supabaseAdmin
       .from('usuarios')
       .select('*')
@@ -128,28 +140,28 @@ const login = async (req, res) => {
       });
     }
 
-    // Check if user is verified
+    // Verificar si la cuenta está verificada
     if (!user.verificado) {
       return res.status(403).json({
         error: 'Account not verified',
-        message: 'Please verify your email address before logging in. Check your email for the verification link.',
+        message: 'Please verify your email address before logging in.',
         needsVerification: true
       });
     }
 
-    // Check if account is locked
+    // Verificar si la cuenta está bloqueada
     if (user.cuenta_bloqueada) {
       const bloqueoExpira = new Date(user.fecha_bloqueo);
-      bloqueoExpira.setHours(bloqueoExpira.getHours() + 24); // Bloqueo por 24 horas
+      bloqueoExpira.setHours(bloqueoExpira.getHours() + 24);
       
       if (new Date() < bloqueoExpira) {
         return res.status(423).json({
           error: 'Account locked',
-          message: user.razon_bloqueo || 'Account is temporarily locked due to multiple failed login attempts. Try again later.',
+          message: user.razon_bloqueo || 'Account is temporarily locked due to multiple failed login attempts.',
           unlockTime: bloqueoExpira
         });
       } else {
-        // Reset lock if time has expired
+        // Reset del bloqueo si ha expirado
         await supabaseAdmin
           .from('usuarios')
           .update({
@@ -162,47 +174,54 @@ const login = async (req, res) => {
       }
     }
 
-    // Authenticate with Supabase Auth
-    const { data: authData, error: authError } = await supabaseAdmin.auth.signInWithPassword({
-      email,
-      password
-    });
+    // Verificar contraseña
+    let isValidPassword = false;
+    
+    if (user.password_hash) {
+      // Usar bcrypt para verificar contraseña
+      isValidPassword = await bcrypt.compare(password, user.password_hash);
+    } else {
+      // Fallback: si no hay password_hash, usar Supabase Auth
+      try {
+        const { data: authData, error: authError } = await supabaseAdmin.auth.signInWithPassword({
+          email,
+          password
+        });
+        isValidPassword = !authError && authData;
+      } catch (authAttemptError) {
+        console.log('⚠️  Error en Supabase Auth:', authAttemptError.message);
+      }
+    }
 
-    if (authError) {
-      // Increment failed login attempts
-      const nuevosIntentos = user.intentos_login_fallidos + 1;
-      const shouldLock = nuevosIntentos >= 5;
+    if (!isValidPassword) {
+      // Incrementar intentos fallidos
+      const intentos = (user.intentos_login_fallidos || 0) + 1;
+      const updateData = { intentos_login_fallidos: intentos };
+
+      // Bloquear cuenta después de 5 intentos fallidos
+      if (intentos >= 5) {
+        updateData.cuenta_bloqueada = true;
+        updateData.fecha_bloqueo = new Date().toISOString();
+        updateData.razon_bloqueo = 'Multiple failed login attempts';
+      }
 
       await supabaseAdmin
         .from('usuarios')
-        .update({
-          intentos_login_fallidos: nuevosIntentos,
-          cuenta_bloqueada: shouldLock,
-          fecha_bloqueo: shouldLock ? new Date().toISOString() : null,
-          razon_bloqueo: shouldLock ? 'Multiple failed login attempts' : null
-        })
+        .update(updateData)
         .eq('id', user.id);
-
-      if (shouldLock) {
-        return res.status(423).json({
-          error: 'Account locked',
-          message: 'Account has been locked due to multiple failed login attempts'
-        });
-      }
 
       return res.status(401).json({
         error: 'Invalid credentials',
-        message: 'Email or password is incorrect',
-        attemptsRemaining: 5 - nuevosIntentos
+        message: 'Email or password is incorrect'
       });
     }
 
-    // Update last login info and reset failed attempts
+    // Actualizar información de último login y resetear intentos fallidos
     await supabaseAdmin
       .from('usuarios')
       .update({
-        ip_ultimo_acceso: clientIP,
         fecha_ultimo_login: new Date().toISOString(),
+        ip_ultimo_acceso: clientIP,
         intentos_login_fallidos: 0,
         cuenta_bloqueada: false,
         fecha_bloqueo: null,
@@ -210,8 +229,10 @@ const login = async (req, res) => {
       })
       .eq('id', user.id);
 
-    // Generate JWT token
+    // Generar token JWT
     const token = generateToken(user.id);
+
+    console.log('✅ Login exitoso para:', user.correo_electronico);
 
     res.json({
       message: 'Login successful',
@@ -226,7 +247,7 @@ const login = async (req, res) => {
       }
     });
   } catch (error) {
-    console.error('Login error:', error);
+    console.error('❌ Login error:', error);
     res.status(500).json({
       error: 'Login failed',
       message: error.message
@@ -234,6 +255,86 @@ const login = async (req, res) => {
   }
 };
 
+// === VERIFICACIÓN DE EMAIL ===
+const verifyEmail = async (req, res) => {
+  try {
+    const { code } = req.body;
+
+    if (!code) {
+      return res.status(400).json({
+        error: 'Invalid request',
+        message: 'Verification code is required'
+      });
+    }
+
+    console.log('📧 Verificación de email con código:', code);
+
+    // Buscar usuario por código de verificación
+    const { data: user, error } = await supabaseAdmin
+      .from('usuarios')
+      .select('*')
+      .eq('token_verificacion_email', code)
+      .single();
+
+    if (error || !user) {
+      return res.status(400).json({
+        error: 'Invalid code',
+        message: 'Verification code is invalid or expired'
+      });
+    }
+
+    // Verificar si el código ha expirado
+    const tokenExpiration = new Date(user.fecha_expiracion_token);
+    if (new Date() > tokenExpiration) {
+      return res.status(400).json({
+        error: 'Code expired',
+        message: 'Verification code has expired. Please request a new one.'
+      });
+    }
+
+    // Verificar el usuario
+    const { error: updateError } = await supabaseAdmin
+      .from('usuarios')
+      .update({
+        verificado: true,
+        token_verificacion_email: null,
+        fecha_expiracion_token: null,
+        fecha_verificacion: new Date().toISOString()
+      })
+      .eq('id', user.id);
+
+    if (updateError) {
+      throw updateError;
+    }
+
+    console.log('✅ Usuario verificado exitosamente:', user.correo_electronico);
+
+    // Enviar email de bienvenida
+    try {
+      await sendWelcomeEmail(user.correo_electronico, user.nombre);
+    } catch (emailError) {
+      console.error('⚠️  Failed to send welcome email:', emailError);
+    }
+
+    res.json({
+      message: 'Email verified successfully',
+      user: {
+        id: user.id,
+        email: user.correo_electronico,
+        nombre: user.nombre,
+        verified: true
+      }
+    });
+  } catch (error) {
+    console.error('❌ Verify email error:', error);
+    res.status(500).json({
+      error: 'Verification failed',
+      message: error.message
+    });
+  }
+};
+
+// === OBTENER PERFIL DE USUARIO ===
 const getProfile = async (req, res) => {
   try {
     const user = req.user;
@@ -251,7 +352,7 @@ const getProfile = async (req, res) => {
       }
     });
   } catch (error) {
-    console.error('Get profile error:', error);
+    console.error('❌ Get profile error:', error);
     res.status(500).json({
       error: 'Failed to get profile',
       message: error.message
@@ -259,96 +360,148 @@ const getProfile = async (req, res) => {
   }
 };
 
-const verifyEmail = async (req, res) => {
+// === CAMBIO DE CONTRASEÑA ===
+const changePassword = async (req, res) => {
   try {
-    const { code } = req.body;
+    const { currentPassword, newPassword } = req.body;
+    const userId = req.user.id;
 
-    if (!code) {
+    if (!currentPassword || !newPassword) {
       return res.status(400).json({
-        error: 'Invalid request',
-        message: 'Verification code is required'
+        error: 'Missing passwords',
+        message: 'Current password and new password are required'
       });
     }
 
-    // Find user by verification code
+    if (newPassword.length < 8) {
+      return res.status(400).json({
+        error: 'Password too short',
+        message: 'New password must be at least 8 characters long'
+      });
+    }
+
+    // Obtener usuario actual
     const { data: user, error } = await supabaseAdmin
       .from('usuarios')
-      .select('*')
-      .eq('token_verificacion_email', code)
+      .select('password_hash')
+      .eq('id', userId)
       .single();
 
     if (error || !user) {
+      return res.status(404).json({
+        error: 'User not found',
+        message: 'User not found'
+      });
+    }
+
+    // Verificar contraseña actual
+    if (user.password_hash) {
+      const isValidCurrentPassword = await bcrypt.compare(currentPassword, user.password_hash);
+      if (!isValidCurrentPassword) {
+        return res.status(401).json({
+          error: 'Invalid current password',
+          message: 'Current password is incorrect'
+        });
+      }
+    } else {
       return res.status(400).json({
-        error: 'Invalid code',
-        message: 'Verification code is invalid or expired'
+        error: 'Password change not available',
+        message: 'Password change is not available for this account type'
       });
     }
 
-    // Check if code is expired (15 minutes)
-    const tokenExpiration = new Date(user.fecha_expiracion_token);
-    if (new Date() > tokenExpiration) {
-      return res.status(400).json({
-        error: 'Code expired',
-        message: 'Verification code has expired. Please request a new one.'
-      });
-    }
+    // Hash de la nueva contraseña
+    const saltRounds = 12;
+    const hashedNewPassword = await bcrypt.hash(newPassword, saltRounds);
 
-    // Check if already verified
-    if (user.verificado) {
-      return res.status(200).json({
-        message: 'Email already verified',
-        verified: true
-      });
-    }
-
-    // Update user as verified
+    // Actualizar contraseña
     const { error: updateError } = await supabaseAdmin
       .from('usuarios')
       .update({
-        verificado: true,
-        token_verificacion_email: null,
-        fecha_expiracion_token: null,
-        fecha_verificacion: new Date().toISOString()
+        password_hash: hashedNewPassword,
+        fecha_cambio_password: new Date().toISOString()
       })
-      .eq('id', user.id);
+      .eq('id', userId);
 
     if (updateError) {
       throw updateError;
     }
 
-    // Send welcome email
-    try {
-      await sendWelcomeEmail(user.correo_electronico, user.nombre);
-    } catch (emailError) {
-      console.error('Failed to send welcome email:', emailError);
-      // Don't fail the verification if welcome email fails
-    }
+    console.log('✅ Contraseña cambiada exitosamente para usuario:', userId);
 
     res.json({
-      message: 'Email verified successfully',
-      verified: true
+      message: 'Password changed successfully'
     });
   } catch (error) {
-    console.error('Email verification error:', error);
+    console.error('❌ Change password error:', error);
     res.status(500).json({
-      error: 'Verification failed',
+      error: 'Failed to change password',
       message: error.message
     });
   }
 };
 
+// === ACTUALIZAR PERFIL ===
+const updateProfile = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const { nombre, telefono } = req.body;
+
+    const updateData = {};
+    if (nombre) updateData.nombre = nombre;
+    if (telefono) updateData.telefono = telefono;
+
+    if (Object.keys(updateData).length === 0) {
+      return res.status(400).json({
+        error: 'No data to update',
+        message: 'Please provide at least one field to update'
+      });
+    }
+
+    const { data: updatedUser, error } = await supabaseAdmin
+      .from('usuarios')
+      .update(updateData)
+      .eq('id', userId)
+      .select('id, correo_electronico, nombre, telefono, verificado, fecha_creacion')
+      .single();
+
+    if (error) {
+      throw error;
+    }
+
+    res.json({
+      message: 'Profile updated successfully',
+      user: {
+        id: updatedUser.id,
+        email: updatedUser.correo_electronico,
+        nombre: updatedUser.nombre,
+        telefono: updatedUser.telefono,
+        verified: updatedUser.verificado,
+        createdAt: updatedUser.fecha_creacion
+      }
+    });
+  } catch (error) {
+    console.error('❌ Update profile error:', error);
+    res.status(500).json({
+      error: 'Failed to update profile',
+      message: error.message
+    });
+  }
+};
+
+// === REENVIAR CÓDIGO DE VERIFICACIÓN ===
 const resendVerification = async (req, res) => {
   try {
     const { email } = req.body;
 
     if (!email) {
       return res.status(400).json({
-        error: 'Invalid request',
+        error: 'Missing email',
         message: 'Email is required'
       });
     }
 
-    // Find user by email
+    // Buscar usuario por email
     const { data: user, error } = await supabaseAdmin
       .from('usuarios')
       .select('*')
@@ -356,26 +509,26 @@ const resendVerification = async (req, res) => {
       .single();
 
     if (error || !user) {
-      // Don't reveal if user exists for security
-      return res.json({
-        message: 'If the email exists, a verification code has been sent'
+      return res.status(404).json({
+        error: 'User not found',
+        message: 'No user found with this email'
       });
     }
 
-    // Check if already verified
+    // Verificar si ya está verificado
     if (user.verificado) {
       return res.status(400).json({
         error: 'Already verified',
-        message: 'Email is already verified'
+        message: 'This account is already verified'
       });
     }
 
-    // Generate new verification code
+    // Generar nuevo código de verificación
     const verificationCode = generateVerificationCode();
     const tokenExpiration = new Date();
     tokenExpiration.setMinutes(tokenExpiration.getMinutes() + 15);
 
-    // Update user with new code
+    // Actualizar código en la base de datos
     const { error: updateError } = await supabaseAdmin
       .from('usuarios')
       .update({
@@ -388,24 +541,23 @@ const resendVerification = async (req, res) => {
       throw updateError;
     }
 
-    // Send verification email
+    // Enviar email de verificación
     try {
-      await sendVerificationEmail(user.correo_electronico, verificationCode, user.nombre);
+      await sendVerificationEmail(email, verificationCode, user.nombre);
+      console.log('📧 Código de verificación reenviado');
     } catch (emailError) {
-      console.error('Failed to send verification email:', emailError);
+      console.error('⚠️  Failed to resend verification email:', emailError);
       return res.status(500).json({
         error: 'Failed to send email',
-        message: 'Could not send verification email. Please try again.'
+        message: 'Could not send verification email'
       });
     }
 
     res.json({
-      message: 'Verification code sent successfully',
-      // In development, you might want to return the code for testing
-      ...(process.env.NODE_ENV === 'development' && { verificationCode })
+      message: 'Verification code resent successfully'
     });
   } catch (error) {
-    console.error('Resend verification error:', error);
+    console.error('❌ Resend verification error:', error);
     res.status(500).json({
       error: 'Failed to resend verification',
       message: error.message
@@ -413,21 +565,22 @@ const resendVerification = async (req, res) => {
   }
 };
 
+// === VERIFICAR ESTADO DE VERIFICACIÓN ===
 const checkVerificationStatus = async (req, res) => {
   try {
-    const { email } = req.query;
+    const { email } = req.body;
 
     if (!email) {
       return res.status(400).json({
-        error: 'Invalid request',
+        error: 'Missing email',
         message: 'Email is required'
       });
     }
 
-    // Find user by email
+    // Buscar usuario por email
     const { data: user, error } = await supabaseAdmin
       .from('usuarios')
-      .select('correo_electronico, verificado, fecha_creacion')
+      .select('verificado, correo_electronico, nombre')
       .eq('correo_electronico', email)
       .single();
 
@@ -439,12 +592,12 @@ const checkVerificationStatus = async (req, res) => {
     }
 
     res.json({
-      email: user.correo_electronico,
       verified: user.verificado,
-      createdAt: user.fecha_creacion
+      email: user.correo_electronico,
+      nombre: user.nombre
     });
   } catch (error) {
-    console.error('Check verification status error:', error);
+    console.error('❌ Check verification status error:', error);
     res.status(500).json({
       error: 'Failed to check verification status',
       message: error.message
@@ -455,8 +608,10 @@ const checkVerificationStatus = async (req, res) => {
 export {
   register,
   login,
-  getProfile,
   verifyEmail,
+  getProfile,
+  changePassword,
+  updateProfile,
   resendVerification,
   checkVerificationStatus
 };
