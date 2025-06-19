@@ -4,7 +4,7 @@ Sistema completo de autenticación con JWT, verificación por email, control de 
 
 ## Base URL
 ```
-http://localhost:3000/api/auth
+https://backendtoutaunclicla-production.up.railway.app/api/v1/auth
 ```
 
 ---
