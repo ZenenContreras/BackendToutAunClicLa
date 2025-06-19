@@ -1,34 +1,68 @@
-# 📦 Products API
+# 📦 API de Productos
 
-## Overview
-Sistema de gestión de productos con funcionalidades públicas para consulta y administrativas para gestión.
+Sistema completo de gestión de productos con funciones públicas y administrativas.
 
 ## Base URL
 ```
-/api/v1/products
+http://localhost:3000/api/products
 ```
+
+**🔒 Autenticación Mixta**: Endpoints públicos y administrativos disponibles.
 
 ---
 
-## Endpoints
+## Endpoints Públicos
 
-### 1. Obtener Todos los Productos
-**GET** `/`
+### GET /
+Obtiene lista paginada de productos con filtros y búsqueda.
 
-#### Descripción
-Obtiene una lista paginada de todos los productos activos con información completa.
+**Query Parameters:**
+- `page` (opcional): Número de página (default: 1)
+- `limit` (opcional): Productos por página (default: 20)
+- `category` (opcional): Filtrar por ID de categoría
+- `search` (opcional): Búsqueda por nombre o descripción
+- `sortBy` (opcional): Campo de ordenamiento (default: fecha_creacion)
+- `sortOrder` (opcional): Orden asc/desc (default: desc)
 
-#### Query Parameters
-| Parámetro | Tipo | Descripción | Por Defecto |
-|-----------|------|-------------|-------------|
-| page | number | Número de página | 1 |
-| limit | number | Elementos por página | 20 |
-| search | string | Búsqueda por nombre/descripción | - |
-| category | number | Filtrar por ID de categoría | - |
-| minPrice | number | Precio mínimo | - |
-| maxPrice | number | Precio máximo | - |
-| inStock | boolean | Solo productos con stock | - |
-| sort | string | Campo de ordenamiento | 'id' |
+**Response (200):**
+```json
+{
+  "products": [
+    {
+      "id": 123,
+      "nombre": "Producto Ejemplo",
+      "descripcion": "Descripción del producto",
+      "precio": 29.99,
+      "categoria_id": 1,
+      "imagen_principal": "https://ejemplo.com/imagen.jpg",
+      "stock": 50,
+      "fecha_creacion": "2024-01-01T00:00:00.000Z",
+      "categorias": {
+        "nombre": "Categoría Ejemplo"
+      },
+      "reviews": [
+        {
+          "estrellas": 5
+        }
+      ],
+      "averageRating": 4.5,
+      "reviewCount": 10
+    }
+  ],
+  "pagination": {
+    "currentPage": 1,
+    "totalPages": 5,
+    "totalItems": 100,
+    "itemsPerPage": 20
+  }
+}
+```
+
+**Características:**
+- Cálculo automático de rating promedio
+- Información de categoría incluida
+- Búsqueda en nombre y descripción
+- Ordenamiento configurable
 | order | string | Orden (asc/desc) | 'asc' |
 
 #### Respuesta Exitosa (200)

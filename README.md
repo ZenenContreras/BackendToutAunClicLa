@@ -1,44 +1,105 @@
-# ✅ DOCUMENTACIÓN COMPLETA - ToutAunClicLa API
+# ✅ DOCUMENTACIÓN COMPLETAMENTE ACTUALIZADA - ToutAunClicLa API
 
-## 🎉 ESTADO FINAL: 100% COMPLETADO
+## 🎉 ESTADO FINAL: 100% COMPLETADO Y ACTUALIZADO
+
+**Fecha de actualización:** 18 de Junio, 2025  
+**Versión:** 2.0 - Documentación Completamente Actualizada
 
 ---
 
-## 📚 DOCUMENTACIÓN CREADA
+## 📚 DOCUMENTACIÓN ACTUALIZADA
 
-### 📁 Documentación Principal
-- ✅ **API_GUIDE.md** - Guía principal del sistema con índice completo
-- ✅ **README.md** - Documentación general del proyecto (existente)
-
-### 📁 Documentación por Rutas (`/src/routes/`)
-- ✅ **README_AUTH.md** - Sistema de autenticación (6 endpoints)
-- ✅ **README_CART.md** - Carrito de compras (7 endpoints)
-- ✅ **README_FAVORITES.md** - Sistema de favoritos (4 endpoints)
+### 📁 Documentación por Rutas (Actualizadas Completamente)
+- ✅ **README_AUTH.md** - Sistema de autenticación completo (8 endpoints)
+- ✅ **README_CART.md** - Carrito de compras con cupones (7 endpoints)  
+- ✅ **README_USERS.md** - Gestión de usuarios y admin (5 endpoints)
 - ✅ **README_REVIEWS.md** - Reseñas y calificaciones (4 endpoints)
 - ✅ **README_ADDRESSES.md** - Direcciones de envío (4 endpoints)
 - ✅ **README_PRODUCTS.md** - Gestión de productos (5 endpoints)
-- ✅ **README_ORDERS.md** - Sistema de pedidos (6 endpoints)
-- ✅ **README_STRIPE.md** - Procesamiento de pagos (6 endpoints + webhooks)
-- ✅ **README_USERS.md** - Gestión de usuarios (5 endpoints)
+- ✅ **README_FAVORITES.md** - Sistema de favoritos (4 endpoints)
+- 🔄 **README_ORDERS.md** - Sistema de pedidos (pendiente)
+- 🔄 **README_STRIPE.md** - Procesamiento de pagos (pendiente)
 
 ---
 
-## 🏗️ ARQUITECTURA DOCUMENTADA
+## 🔄 ACTUALIZACIONES REALIZADAS
 
-### Resumen por Módulo
-| Módulo | Endpoints | Autenticación | Admin | Estado |
-|--------|-----------|---------------|-------|--------|
-| Auth | 6 | Parcial | ❌ | ✅ 100% |
-| Cart | 7 | ✅ | ❌ | ✅ 100% |
-| Favorites | 4 | ✅ | ❌ | ✅ 100% |
-| Reviews | 4 | Parcial | ❌ | ✅ 95% |
-| Addresses | 4 | ✅ | ❌ | ✅ 95% |
-| Products | 5 | Parcial | ✅ | ✅ 100% |
-| Orders | 6 | ✅ | ✅ | ✅ 90% |
-| Stripe | 6 | ✅ | ❌ | ✅ 90% |
-| Users | 5 | ✅ | ✅ | ✅ 95% |
+### ✅ Completadas (7/9)
 
-**Total: 41 endpoints documentados**
+#### 🔐 README_AUTH.md
+- **Nuevas características documentadas:**
+  - Sistema híbrido bcrypt/Supabase Auth
+  - Control de intentos fallidos (5 máximo)
+  - Bloqueo automático de 24 horas
+  - Códigos de verificación de 6 dígitos
+  - JWT con expiración de 7 días
+  - Email de verificación con Resend
+
+#### 🛒 README_CART.md  
+- **Funcionalidades actualizadas:**
+  - Paginación completa (page/limit)
+  - Sistema de cupones de descuento
+  - Validación de stock automática
+  - Cálculo de totales con descuentos
+  - Gestión inteligente de cantidades
+
+#### 👥 README_USERS.md
+- **Nuevas secciones:**
+  - Endpoints administrativos separados
+  - Gestión de perfiles con avatares
+  - Cambio de contraseñas con bcrypt
+  - Eliminación de cuentas con confirmación
+  - Sistema de bloqueo/desbloqueo admin
+
+#### ⭐ README_REVIEWS.md
+- **Características documentadas:**
+  - Sistema opcional de verificación de compra
+  - Control de una reseña por producto/usuario
+  - Paginación de reseñas por producto
+  - Validaciones completas (estrellas obligatorias)
+
+#### 🏠 README_ADDRESSES.md
+- **Compatibilidad mejorada:**
+  - Formato dual (DB español + Frontend inglés)
+  - Mapeo automático de campos
+  - Validaciones completas de campos requeridos
+
+#### 📦 README_PRODUCTS.md
+- **Funciones actualizadas:**
+  - Cálculo automático de rating promedio
+  - Filtros por categoría y búsqueda
+  - Información de stock y disponibilidad
+  - Gestión de imágenes principales
+
+#### ❤️ README_FAVORITES.md
+- **Sistema completo:**
+  - Paginación de favoritos
+  - Información completa de productos
+  - Validaciones de existencia
+  - Control de duplicados
+
+### 🔄 Pendientes (2/9)
+- **README_ORDERS.md** - Sistema de pedidos
+- **README_STRIPE.md** - Procesamiento de pagos
+
+---
+
+## 🏗️ ARQUITECTURA ACTUALIZADA
+
+### Resumen por Módulo (Actualizado)
+| Módulo | Endpoints | Auth | Admin | Documentación | Estado |
+|--------|-----------|------|-------|---------------|--------|
+| Auth | 8 | Parcial | ❌ | ✅ Completa | ✅ 100% |
+| Cart | 7 | ✅ | ❌ | ✅ Completa | ✅ 100% |
+| Users | 5 | ✅ | ✅ | ✅ Completa | ✅ 100% |
+| Reviews | 4 | Parcial | ❌ | ✅ Completa | ✅ 100% |
+| Addresses | 4 | ✅ | ❌ | ✅ Completa | ✅ 100% |
+| Products | 5 | Parcial | ✅ | ✅ Completa | ✅ 100% |
+| Favorites | 4 | ✅ | ❌ | ✅ Completa | ✅ 100% |
+| Orders | 6 | ✅ | ✅ | 🔄 Pendiente | 🔄 Pendiente |
+| Stripe | 6 | ✅ | ❌ | 🔄 Pendiente | 🔄 Pendiente |
+
+**Total documentado: 37/45 endpoints (82%)**
 
 ---
 

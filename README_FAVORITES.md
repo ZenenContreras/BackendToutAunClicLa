@@ -1,34 +1,64 @@
-# ❤️ Favorites API
+# ❤️ API de Favoritos
 
-## Overview
-Sistema de favoritos que permite a los usuarios guardar productos para revisión posterior.
+Sistema de gestión de productos favoritos con validaciones y paginación.
 
 ## Base URL
 ```
-/api/v1/favorites
+http://localhost:3000/api/favorites
 ```
 
-## 🔒 Autenticación Requerida
-Todos los endpoints requieren autenticación JWT.
+**🔒 Autenticación Requerida**: Todos los endpoints requieren token JWT válido.
 
 ---
 
-## Endpoints
+## Endpoints Disponibles
 
-### 1. Obtener Favoritos
-**GET** `/`
+### GET /
+Obtiene productos favoritos del usuario con paginación.
 
-#### Descripción
-Obtiene todos los productos favoritos del usuario autenticado con información completa del producto.
-
-#### Headers Requeridos
+**Headers:**
 ```
-Authorization: Bearer <jwt_token>
+Authorization: Bearer jwt_token
 ```
 
-#### Query Parameters
-| Parámetro | Tipo | Descripción | Por Defecto |
-|-----------|------|-------------|-------------|
+**Query Parameters:**
+- `page` (opcional): Número de página (default: 1)
+- `limit` (opcional): Favoritos por página (default: 20)
+
+**Response (200):**
+```json
+{
+  "favorites": [
+    {
+      "id": 1,
+      "usuario_id": "uuid",
+      "producto_id": 123,
+      "productos": {
+        "id": 123,
+        "nombre": "Producto Ejemplo",
+        "precio": 29.99,
+        "imagen_principal": "https://ejemplo.com/imagen.jpg",
+        "stock": 50,
+        "categorias": {
+          "nombre": "Categoría Ejemplo"
+        }
+      }
+    }
+  ],
+  "pagination": {
+    "currentPage": 1,
+    "totalPages": 3,
+    "totalItems": 50,
+    "itemsPerPage": 20
+  }
+}
+```
+
+**Características:**
+- Información completa del producto
+- Datos de categoría incluidos
+- Paginación para listas largas
+- Ordenamiento por fecha de agregado (más recientes primero)
 | page | number | Número de página | 1 |
 | limit | number | Elementos por página | 20 |
 

@@ -1,59 +1,52 @@
-# 🔐 Authentication API
+# 🔐 API de Autenticación
 
-## Overview
-Sistema de autenticación con JWT, verificación por email y protección de cuentas.
+Sistema completo de autenticación con JWT, verificación por email, control de seguridad y gestión de cuentas.
 
 ## Base URL
 ```
-/api/v1/auth
+http://localhost:3000/api/auth
 ```
 
 ---
 
-## Endpoints
+## Endpoints Disponibles
 
-### 1. Registro de Usuario
-**POST** `/register`
+### POST /register
+Registra un nuevo usuario en el sistema.
 
-#### Descripción
-Registra un nuevo usuario en el sistema. Envía un código de verificación por email.
-
-#### Rate Limiting
-- **Límite**: 5 intentos por 15 minutos por IP
-- **Header**: `X-RateLimit-Remaining`, `X-RateLimit-Reset`
-
-#### Request Body
+**Request Body:**
 ```json
 {
   "email": "usuario@ejemplo.com",
-  "password": "password123",
-  "nombre": "Juan Pérez",
-  "telefono": "+34 123 456 789" // opcional
+  "password": "contraseña123",
+  "nombre": "Nombre Usuario",
+  "telefono": "+1234567890"
 }
 ```
 
-#### Validaciones
-- **email**: Formato de email válido, requerido
-- **password**: Mínimo 6 caracteres, requerido
-- **nombre**: Mínimo 2 caracteres, requerido
-- **telefono**: Opcional, formato libre
-
-#### Respuesta Exitosa (201)
+**Response (201):**
 ```json
 {
   "message": "User registered successfully. Please check your email for verification code.",
   "user": {
     "id": "uuid",
     "email": "usuario@ejemplo.com",
-    "nombre": "Juan Pérez",
-    "telefono": "+34 123 456 789",
+    "nombre": "Nombre Usuario",
+    "telefono": "+1234567890",
     "verified": false,
-    "createdAt": "2025-06-17T10:30:00Z"
+    "createdAt": "2024-01-01T00:00:00.000Z"
   },
-  "token": "jwt_token_here",
+  "token": "jwt_token",
   "verificationRequired": true
 }
 ```
+
+**Características:**
+- Hash de contraseña con bcrypt (12 rounds)
+- Código de verificación de 6 dígitos
+- Token JWT válido por 7 días
+- Email de verificación automático
+- Validación de usuario existente
 
 #### Errores Posibles
 | Código | Error | Descripción |

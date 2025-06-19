@@ -1,34 +1,52 @@
-# 🏠 Addresses API
+# 🏠 API de Direcciones
 
-## Overview
-Sistema de gestión de direcciones de envío para usuarios registrados.
+Sistema de gestión de direcciones de envío con compatibilidad frontend/backend.
 
 ## Base URL
 ```
-/api/v1/addresses
+http://localhost:3000/api/addresses
 ```
 
-## 🔒 Autenticación Requerida
-Todos los endpoints requieren autenticación JWT.
+**🔒 Autenticación Requerida**: Todos los endpoints requieren token JWT válido.
 
 ---
 
-## Endpoints
+## Endpoints Disponibles
 
-### 1. Obtener Direcciones
-**GET** `/`
-
-#### Descripción
+### GET /
 Obtiene todas las direcciones de envío del usuario autenticado.
 
-#### Headers Requeridos
+**Headers:**
 ```
-Authorization: Bearer <jwt_token>
+Authorization: Bearer jwt_token
 ```
 
-#### Respuesta Exitosa (200)
+**Response (200):**
 ```json
 {
+  "addresses": [
+    {
+      "id": 1,
+      "direccion": "Calle Principal 123",
+      "ciudad": "Ciudad Ejemplo",
+      "estado": "Estado Ejemplo",
+      "codigo_postal": "12345",
+      "pais": "País Ejemplo",
+      "address": "Calle Principal 123",
+      "city": "Ciudad Ejemplo",
+      "state": "Estado Ejemplo",
+      "postalCode": "12345",
+      "country": "País Ejemplo"
+    }
+  ],
+  "count": 1
+}
+```
+
+**Características:**
+- Formato dual (campos DB + compatibilidad frontend)
+- Ordenamiento por ID descendente (más recientes primero)
+- Contador total de direcciones
   "addresses": [
     {
       "id": "uuid",

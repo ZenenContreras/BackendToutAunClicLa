@@ -1,34 +1,55 @@
-# 👤 Users API
+# 👥 API de Usuarios
 
-## Overview
-Sistema de gestión de usuarios con funcionalidades para usuarios autenticados y administradores. Incluye gestión de perfiles, cambio de contraseñas y administración de cuentas.
+Sistema de gestión de usuarios con funciones administrativas y de usuario final.
 
 ## Base URL
 ```
-/api/v1/users
+http://localhost:3000/api/users
 ```
 
-## 🔒 Autenticación Requerida
-Todos los endpoints requieren autenticación JWT.
+**🔒 Autenticación Requerida**: Todos los endpoints requieren token JWT válido.
 
 ---
 
-## Endpoints
+## Endpoints de Usuario
 
-### 1. Actualizar Perfil 🔒
-**PUT** `/profile`
+### PUT /profile
+Actualiza el perfil del usuario autenticado.
 
-#### Descripción
-Actualiza la información del perfil del usuario autenticado.
-
-#### Headers Requeridos
+**Headers:**
 ```
-Authorization: Bearer <jwt_token>
-Content-Type: application/json
+Authorization: Bearer jwt_token
 ```
 
-#### Request Body
+**Request Body:**
 ```json
+{
+  "nombre": "Nuevo Nombre",
+  "telefono": "+1234567890",
+  "avatarUrl": "https://ejemplo.com/avatar.jpg"
+}
+```
+
+**Response (200):**
+```json
+{
+  "message": "Profile updated successfully",
+  "user": {
+    "id": "uuid",
+    "email": "usuario@ejemplo.com",
+    "nombre": "Nuevo Nombre",
+    "telefono": "+1234567890",
+    "verified": true,
+    "createdAt": "2024-01-01T00:00:00.000Z",
+    "avatarUrl": "https://ejemplo.com/avatar.jpg"
+  }
+}
+```
+
+**Características:**
+- Actualización selectiva de campos
+- Validación de pertenencia de usuario
+- Actualización de avatar opcional
 {
   "nombre": "Juan Pérez",
   "telefono": "+34 123 456 789",

@@ -1,34 +1,58 @@
-# ⭐ Reviews API
+# ⭐ API de Reseñas
 
-## Overview
-Sistema de reseñas que permite a los usuarios calificar y comentar productos que han comprado.
+Sistema de reseñas y valoraciones de productos con validaciones y control de acceso.
 
 ## Base URL
 ```
-/api/v1/reviews
+http://localhost:3000/api/reviews
 ```
+
+**🔒 Autenticación Parcial**: Algunos endpoints requieren token JWT.
 
 ---
 
-## Endpoints
+## Endpoints Públicos
 
-### 1. Obtener Reseñas de Producto
-**GET** `/product/:productId`
+### GET /product/:productId
+Obtiene todas las reseñas de un producto específico con paginación.
 
-#### Descripción
-Obtiene todas las reseñas de un producto específico con información del usuario que las escribió.
+**Parameters:**
+- `productId`: ID del producto
 
-#### URL Parameters
-- `productId`: ID del producto (número entero)
+**Query Parameters:**
+- `page` (opcional): Número de página (default: 1)
+- `limit` (opcional): Reseñas por página (default: 10)
 
-#### Query Parameters
-| Parámetro | Tipo | Descripción | Por Defecto |
-|-----------|------|-------------|-------------|
-| page | number | Número de página | 1 |
-| limit | number | Elementos por página | 10 |
-
-#### Respuesta Exitosa (200)
+**Response (200):**
 ```json
+{
+  "reviews": [
+    {
+      "id": 1,
+      "usuario_id": "uuid",
+      "producto_id": 123,
+      "estrellas": 5,
+      "comentario": "Excelente producto, muy recomendado",
+      "fecha_creacion": "2024-01-01T00:00:00.000Z",
+      "usuarios": {
+        "nombre": "Juan Pérez"
+      }
+    }
+  ],
+  "pagination": {
+    "currentPage": 1,
+    "totalPages": 3,
+    "totalItems": 25,
+    "itemsPerPage": 10
+  }
+}
+```
+
+**Características:**
+- Acceso público sin autenticación
+- Información del usuario que escribió la reseña
+- Paginación para rendimiento
+- Ordenamiento por fecha (más recientes primero)
 {
   "reviews": [
     {

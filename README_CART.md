@@ -1,54 +1,66 @@
-# 🛒 Cart API
+# 🛒 API de Carrito de Compras
 
-## Overview
-Sistema de carrito de compras con soporte para cupones de descuento y gestión completa de productos.
+Sistema completo de carrito de compras con paginación, validación de stock y soporte para cupones de descuento.
 
 ## Base URL
 ```
-/api/v1/cart
+http://localhost:3000/api/cart
 ```
 
-## 🔒 Autenticación Requerida
-Todos los endpoints requieren autenticación JWT.
+**🔒 Autenticación Requerida**: Todos los endpoints requieren token JWT válido.
 
 ---
 
-## Endpoints
+## Endpoints Disponibles
 
-### 1. Obtener Carrito
-**GET** `/`
+### GET /
+Obtiene el carrito del usuario autenticado con paginación.
 
-#### Descripción
-Obtiene todos los productos en el carrito del usuario autenticado con información detallada.
-
-#### Headers Requeridos
+**Headers:**
 ```
-Authorization: Bearer <jwt_token>
+Authorization: Bearer jwt_token
 ```
 
-#### Query Parameters
-| Parámetro | Tipo | Descripción | Por Defecto |
-|-----------|------|-------------|-------------|
-| page | number | Número de página | 1 |
-| limit | number | Elementos por página | 20 |
+**Query Parameters:**
+- `page` (opcional): Número de página (default: 1)
+- `limit` (opcional): Items por página (default: 20)
 
-#### Respuesta Exitosa (200)
+**Response (200):**
 ```json
 {
   "cartItems": [
     {
-      "id": "uuid",
-      "productId": 123,
-      "quantity": 2,
-      "unitPrice": 29.99,
-      "totalPrice": 59.98,
-      "product": {
+      "id": 1,
+      "usuario_id": "uuid",
+      "producto_id": 123,
+      "cantidad": 2,
+      "productos": {
         "id": 123,
         "nombre": "Producto Ejemplo",
         "precio": 29.99,
-        "imagen_principal": "url_imagen",
-        "stock": 50,
-        "categoria": {
+        "imagen_principal": "https://ejemplo.com/imagen.jpg",
+        "stock": 50
+      }
+    }
+  ],
+  "total": 59.98,
+  "itemCount": 1,
+  "pagination": {
+    "currentPage": 1,
+    "totalPages": 1,
+    "totalItems": 1,
+    "itemsPerPage": 20,
+    "hasNextPage": false,
+    "hasPrevPage": false
+  }
+}
+```
+
+**Características:**
+- Paginación automática
+- Cálculo de total general
+- Información completa del producto
+- Contador total de items
           "nombre": "Electrónicos"
         }
       },
