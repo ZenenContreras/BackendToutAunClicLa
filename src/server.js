@@ -50,7 +50,7 @@ app.use(cors({
 }));
 
 // Rate limiting
-app.use(arcjectMiddleware);
+// app.use(arcjectMiddleware);
 app.use(rateLimiter);
 
 // Logging
