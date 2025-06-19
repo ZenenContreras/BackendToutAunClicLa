@@ -45,15 +45,13 @@ const createReview = async (req, res) => {
     const { 
       productId, 
       estrellas, 
-      comentario,
-      // Campos alternativos para compatibilidad
-      rating,
-      comment 
+      comentario
+      
     } = req.body;
 
     // Normalizar los campos
-    const finalRating = estrellas || rating;
-    const finalComment = comentario || comment;
+    const finalRating = estrellas ;
+    const finalComment = comentario;
 
     if (!finalRating) {
       return res.status(400).json({
@@ -158,15 +156,12 @@ const updateReview = async (req, res) => {
     const userId = req.user.id;
     const { 
       estrellas, 
-      comentario,
-      // Campos alternativos para compatibilidad
-      rating,
-      comment 
+      comentario
     } = req.body;
 
     // Normalizar los campos
-    const finalRating = estrellas || rating;
-    const finalComment = comentario !== undefined ? comentario : comment;
+    const finalRating = estrellas;
+    const finalComment = comentario ;
 
     if (!finalRating) {
       return res.status(400).json({

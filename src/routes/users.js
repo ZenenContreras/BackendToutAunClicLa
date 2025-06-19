@@ -42,7 +42,7 @@ const updateUserStatusSchema = Joi.object({
 // User routes
 router.put('/profile', authMiddleware, validateRequest(updateProfileSchema), updateProfile);
 router.put('/password', authMiddleware, validateRequest(changePasswordSchema), changePassword);
-router.delete('/account', authMiddleware, validateRequest(deleteAccountSchema), deleteAccount);
+router.delete('/delete', authMiddleware, validateRequest(deleteAccountSchema), deleteAccount);
 
 // Admin routes
 router.get('/', authMiddleware, adminMiddleware, getAllUsers);

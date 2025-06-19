@@ -378,7 +378,7 @@ const applyCoupon = async (req, res) => {
 const getCartWithCoupon = async (req, res) => {
   try {
     const userId = req.user.id;
-    const { couponCode } = req.query;
+    const { couponCode } = req.body;
 
     // Get cart items
     const { data: cartItems, error } = await supabaseAdmin

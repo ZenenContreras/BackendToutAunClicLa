@@ -258,28 +258,30 @@ const login = async (req, res) => {
 // === VERIFICACIÓN DE EMAIL ===
 const verifyEmail = async (req, res) => {
   try {
-    const { code } = req.body;
+    const { email, code } = req.body;
 
-    if (!code) {
+    // Validación manual adicional (ya validado por Joi, pero por seguridad)
+    if (!email || !code) {
       return res.status(400).json({
         error: 'Invalid request',
-        message: 'Verification code is required'
+        message: 'Both email and verification code are required'
       });
     }
 
-    console.log('📧 Verificación de email con código:', code);
+    console.log('📧 Verificación de email para:', email, 'con código:', code);
 
-    // Buscar usuario por código de verificación
+    // Buscar usuario por email Y código de verificación
     const { data: user, error } = await supabaseAdmin
       .from('usuarios')
       .select('*')
+      .eq('correo_electronico', email)
       .eq('token_verificacion_email', code)
       .single();
 
     if (error || !user) {
       return res.status(400).json({
-        error: 'Invalid code',
-        message: 'Verification code is invalid or expired'
+        error: 'Invalid verification',
+        message: 'Email and verification code combination is invalid or expired'
       });
     }
 
@@ -419,7 +421,7 @@ const changePassword = async (req, res) => {
       .from('usuarios')
       .update({
         password_hash: hashedNewPassword,
-        fecha_cambio_password: new Date().toISOString()
+        fecha_cambio_contrasena: new Date().toISOString()
       })
       .eq('id', userId);
 

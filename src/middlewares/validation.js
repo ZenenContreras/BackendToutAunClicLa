@@ -31,9 +31,14 @@ const userLoginSchema = Joi.object({
 
 // Email verification schemas
 const verificationCodeSchema = Joi.object({
+  email: Joi.string().email().required().messages({
+    'string.email': 'Must be a valid email address',
+    'any.required': 'Email is required for verification'
+  }),
   code: Joi.string().length(6).pattern(/^[0-9]+$/).required().messages({
     'string.length': 'Verification code must be exactly 6 digits',
-    'string.pattern.base': 'Verification code must contain only numbers'
+    'string.pattern.base': 'Verification code must contain only numbers',
+    'any.required': 'Verification code is required'
   })
 });
 

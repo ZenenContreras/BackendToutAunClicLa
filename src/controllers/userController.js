@@ -47,29 +47,62 @@ const changePassword = async (req, res) => {
     const userId = req.user.id;
     const { currentPassword, newPassword } = req.body;
 
-    // Use Supabase Auth to update password
-    const { data, error } = await supabaseAdmin.auth.admin.updateUserById(userId, {
-      password: newPassword
-    });
+    // Obtener el hash de la contraseña actual del usuario
+    const { data: user, error } = await supabaseAdmin
+      .from('usuarios')
+      .select('password_hash')
+      .eq('id', userId)
+      .single();
 
-    if (error) {
-      if (error.message.includes('New password should be different')) {
-        return res.status(400).json({
-          error: 'Invalid password',
-          message: 'New password must be different from current password'
-        });
-      }
-      throw error;
+    if (error || !user) {
+      return res.status(404).json({
+        error: 'User not found',
+        message: 'User not found'
+      });
     }
 
-    // Update password change timestamp in our table
-    await supabaseAdmin
+    // Verificar contraseña actual usando bcrypt
+    if (user.password_hash) {
+      const isValidCurrentPassword = await bcrypt.compare(currentPassword, user.password_hash);
+      if (!isValidCurrentPassword) {
+        return res.status(400).json({
+          error: 'Invalid current password',
+          message: 'Current password is incorrect'
+        });
+      }
+    } else {
+      return res.status(400).json({
+        error: 'Password change not available',
+        message: 'Password change is not available for this account type'
+      });
+    }
+
+    // Verificar que la nueva contraseña sea diferente
+    const isSamePassword = await bcrypt.compare(newPassword, user.password_hash);
+    if (isSamePassword) {
+      return res.status(400).json({
+        error: 'Invalid password',
+        message: 'New password must be different from current password'
+      });
+    }
+
+    // Hash de la nueva contraseña
+    const saltRounds = 12;
+    const hashedNewPassword = await bcrypt.hash(newPassword, saltRounds);
+
+    // Actualizar contraseña en nuestra tabla
+    const { error: updateError } = await supabaseAdmin
       .from('usuarios')
       .update({ 
+        password_hash: hashedNewPassword,
         fecha_cambio_contrasena: new Date().toISOString(),
         requiere_cambio_contrasena: false
       })
       .eq('id', userId);
+
+    if (updateError) {
+      throw updateError;
+    }
 
     res.json({
       message: 'Password changed successfully'
@@ -88,28 +121,53 @@ const deleteAccount = async (req, res) => {
     const userId = req.user.id;
     const { password } = req.body;
 
-    // Verify password with Supabase Auth before deletion
-    const { data: authData, error: authError } = await supabaseAdmin.auth.signInWithPassword({
-      email: req.user.correo_electronico,
-      password
-    });
+    // Obtener el hash de la contraseña del usuario desde nuestra tabla
+    const { data: user, error } = await supabaseAdmin
+      .from('usuarios')
+      .select('password_hash')
+      .eq('id', userId)
+      .single();
 
-    if (authError) {
-      return res.status(400).json({
-        error: 'Invalid password',
-        message: 'Password is incorrect'
+    if (error || !user) {
+      return res.status(404).json({
+        error: 'User not found',
+        message: 'User not found'
       });
     }
 
-    // Delete from Supabase Auth
-    const { error: deleteAuthError } = await supabaseAdmin.auth.admin.deleteUser(userId);
-    
-    if (deleteAuthError) {
-      throw deleteAuthError;
+    // Verificar contraseña usando bcrypt
+    if (user.password_hash) {
+      const isValidPassword = await bcrypt.compare(password, user.password_hash);
+      if (!isValidPassword) {
+        return res.status(400).json({
+          error: 'Invalid password',
+          message: 'Password is incorrect'
+        });
+      }
+    } else {
+      return res.status(400).json({
+        error: 'Account deletion not available',
+        message: 'Account deletion is not available for this account type'
+      });
     }
 
-    // The user record in our custom table will be cascade deleted or we can mark as deleted
-    // For now, we'll just delete the auth user which should be sufficient
+    // Eliminar el usuario de nuestra tabla personalizada
+    const { error: deleteTableError } = await supabaseAdmin
+      .from('usuarios')
+      .delete()
+      .eq('id', userId);
+
+    if (deleteTableError) {
+      throw deleteTableError;
+    }
+
+    // Intentar eliminar de Supabase Auth si existe (opcional)
+    try {
+      await supabaseAdmin.auth.admin.deleteUser(userId);
+    } catch (authDeleteError) {
+      // No es crítico si falla, ya que el usuario principal está en nuestra tabla
+      console.log('Auth user deletion failed (not critical):', authDeleteError.message);
+    }
     
     res.json({
       message: 'Account deleted successfully'

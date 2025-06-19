@@ -24,14 +24,12 @@ const getUserAddresses = async (req, res) => {
       estado: addr.estado,
       codigo_postal: addr.codigo_postal,
       pais: addr.pais,
-      telefono: addr.telefono,
       // Campos alternativos para compatibilidad
       address: addr.direccion,
       city: addr.ciudad,
       state: addr.estado,
       postalCode: addr.codigo_postal,
-      country: addr.pais,
-      phone: addr.telefono
+      country: addr.pais
     }));
 
     res.json({ 
@@ -60,14 +58,12 @@ const createAddress = async (req, res) => {
       estado,
       codigo_postal,
       pais,
-      telefono,
       // Campos alternativos del frontend
       address,
       city,
       state,
       postalCode,
       country,
-      phone
     } = req.body;
 
     // Mapear campos del frontend a la base de datos
@@ -76,8 +72,7 @@ const createAddress = async (req, res) => {
       ciudad: ciudad || city,
       estado: estado || state,
       codigo_postal: codigo_postal || postalCode,
-      pais: pais || country,
-      telefono: telefono || phone
+      pais: pais || country
     };
 
     // Validar campos requeridos según la base de datos
@@ -98,8 +93,7 @@ const createAddress = async (req, res) => {
         ciudad: addressData.ciudad.trim(),
         estado: addressData.estado.trim(),
         codigo_postal: addressData.codigo_postal.trim(),
-        pais: addressData.pais.trim(),
-        telefono: addressData.telefono ? addressData.telefono.trim() : null
+        pais: addressData.pais.trim()
       }])
       .select()
       .single();
@@ -129,14 +123,13 @@ const createAddress = async (req, res) => {
       estado: newAddress.estado,
       codigo_postal: newAddress.codigo_postal,
       pais: newAddress.pais,
-      telefono: newAddress.telefono,
+      
       // Campos alternativos para compatibilidad
       address: newAddress.direccion,
       city: newAddress.ciudad,
       state: newAddress.estado,
       postalCode: newAddress.codigo_postal,
-      country: newAddress.pais,
-      phone: newAddress.telefono
+      country: newAddress.pais
     };
 
     res.status(201).json({
@@ -166,14 +159,12 @@ const updateAddress = async (req, res) => {
       estado,
       codigo_postal,
       pais,
-      telefono,
       // Campos alternativos del frontend
       address,
       city,
       state,
       postalCode,
       country,
-      phone
     } = req.body;
 
     // Verificar que la dirección existe y pertenece al usuario
@@ -197,8 +188,7 @@ const updateAddress = async (req, res) => {
       ciudad: ciudad || city,
       estado: estado || state,
       codigo_postal: codigo_postal || postalCode,
-      pais: pais || country,
-      telefono: telefono || phone
+      pais: pais || country
     };
 
     // Validar campos requeridos
@@ -218,8 +208,7 @@ const updateAddress = async (req, res) => {
         ciudad: addressData.ciudad.trim(),
         estado: addressData.estado.trim(),
         codigo_postal: addressData.codigo_postal.trim(),
-        pais: addressData.pais.trim(),
-        telefono: addressData.telefono ? addressData.telefono.trim() : null
+        pais: addressData.pais.trim()
       })
       .eq('id', addressId)
       .eq('usuario_id', userId)
@@ -242,14 +231,12 @@ const updateAddress = async (req, res) => {
       estado: updatedAddress.estado,
       codigo_postal: updatedAddress.codigo_postal,
       pais: updatedAddress.pais,
-      telefono: updatedAddress.telefono,
       // Campos alternativos para compatibilidad
       address: updatedAddress.direccion,
       city: updatedAddress.ciudad,
       state: updatedAddress.estado,
       postalCode: updatedAddress.codigo_postal,
-      country: updatedAddress.pais,
-      phone: updatedAddress.telefono
+      country: updatedAddress.pais
     };
 
     res.json({
