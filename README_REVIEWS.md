@@ -4,7 +4,7 @@ Sistema de reseñas y valoraciones de productos con validaciones y control de ac
 
 ## Base URL
 ```
-http://localhost:3000/api/reviews
+https://backendtoutaunclicla-production.up.railway.app/api/v1/reviews
 ```
 
 **🔒 Autenticación Parcial**: Algunos endpoints requieren token JWT.
