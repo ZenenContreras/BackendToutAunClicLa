@@ -5,7 +5,7 @@ Sistema de gestión de pedidos con funcionalidades para usuarios y administrador
 
 ## Base URL
 ```
-/api/v1/orders
+https://backendtoutaunclicla-production.up.railway.app/api/v1/orders
 ```
 
 ## 🔒 Autenticación Requerida
