@@ -273,7 +273,7 @@ Authorization: Bearer <jwt_token>
 
 #### 1. Registrar usuario
 ```bash
-curl -X POST http://localhost:5500/api/v1/auth/register \
+curl -X POST https://backendtoutaunclicla-production.up.railway.app/api/v1/auth/register \
   -H "Content-Type: application/json" \
   -d '{
     "email": "test@ejemplo.com",
@@ -284,7 +284,7 @@ curl -X POST http://localhost:5500/api/v1/auth/register \
 
 #### 2. Verificar email (revisar bandeja de entrada)
 ```bash
-curl -X POST http://localhost:5500/api/v1/auth/verify-email \
+curl -X POST https://backendtoutaunclicla-production.up.railway.app/v1/auth/verify-email \
   -H "Content-Type: application/json" \
   -d '{
     "code": "123456"
@@ -293,7 +293,7 @@ curl -X POST http://localhost:5500/api/v1/auth/verify-email \
 
 #### 3. Hacer login
 ```bash
-curl -X POST http://localhost:5500/api/v1/auth/login \
+curl -X POST https://backendtoutaunclicla-production.up.railway.app/api/v1/auth/login \
   -H "Content-Type: application/json" \
   -d '{
     "email": "test@ejemplo.com",
@@ -303,7 +303,7 @@ curl -X POST http://localhost:5500/api/v1/auth/login \
 
 #### 4. Usar token para acceder al perfil
 ```bash
-curl -X GET http://localhost:5500/api/v1/auth/profile \
+curl -X GET https://backendtoutaunclicla-production.up.railway.app/api/v1/auth/profile \
   -H "Authorization: Bearer <token_recibido>"
 ```
 

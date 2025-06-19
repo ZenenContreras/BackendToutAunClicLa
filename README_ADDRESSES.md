@@ -228,13 +228,13 @@ Elimina una dirección existente. Solo el propietario puede eliminar su direcci�
 
 #### 1. Obtener todas las direcciones
 ```bash
-curl -X GET http://localhost:5500/api/v1/addresses \
+curl -X GET https://backendtoutaunclicla-production.up.railway.app/api/v1/addresses \
   -H "Authorization: Bearer <token>"
 ```
 
 #### 2. Crear nueva dirección
 ```bash
-curl -X POST http://localhost:5500/api/v1/addresses \
+curl -X POST https://backendtoutaunclicla-production.up.railway.app/api/v1/addresses \
   -H "Authorization: Bearer <token>" \
   -H "Content-Type: application/json" \
   -d '{
@@ -249,7 +249,7 @@ curl -X POST http://localhost:5500/api/v1/addresses \
 
 #### 3. Actualizar dirección existente
 ```bash
-curl -X PUT http://localhost:5500/api/v1/addresses/<address_id> \
+curl -X PUT https://backendtoutaunclicla-production.up.railway.app/api/v1/addresses/<address_id> \
   -H "Authorization: Bearer <token>" \
   -H "Content-Type: application/json" \
   -d '{
@@ -264,7 +264,7 @@ curl -X PUT http://localhost:5500/api/v1/addresses/<address_id> \
 
 #### 4. Eliminar dirección
 ```bash
-curl -X DELETE http://localhost:5500/api/v1/addresses/<address_id> \
+curl -X DELETE https://backendtoutaunclicla-production.up.railway.app/api/v1/addresses/<address_id> \
   -H "Authorization: Bearer <token>"
 ```
 
