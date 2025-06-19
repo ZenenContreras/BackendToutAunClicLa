@@ -4,7 +4,7 @@ Sistema completo de gestión de productos con funciones públicas y administrati
 
 ## Base URL
 ```
-http://localhost:3000/api/products
+https://backendtoutaunclicla-production.up.railway.app/api/v1/products
 ```
 
 **🔒 Autenticación Mixta**: Endpoints públicos y administrativos disponibles.

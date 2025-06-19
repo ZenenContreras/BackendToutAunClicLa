@@ -4,7 +4,7 @@ Sistema completo de carrito de compras con paginación, validación de stock y s
 
 ## Base URL
 ```
-http://localhost:3000/api/cart
+https://backendtoutaunclicla-production.up.railway.app/api/v1/cart
 ```
 
 **🔒 Autenticación Requerida**: Todos los endpoints requieren token JWT válido.
