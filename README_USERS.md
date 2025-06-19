@@ -4,7 +4,7 @@ Sistema de gestión de usuarios con funciones administrativas y de usuario final
 
 ## Base URL
 ```
-http://localhost:3000/api/users
+https://backendtoutaunclicla-production.up.railway.app/api/v1/users
 ```
 
 **🔒 Autenticación Requerida**: Todos los endpoints requieren token JWT válido.

@@ -5,7 +5,7 @@ Sistema de procesamiento de pagos integrado con Stripe para manejar transaccione
 
 ## Base URL
 ```
-/api/v1/stripe
+https://backendtoutaunclicla-production.up.railway.app/api/v1/stripe
 ```
 
 ## 🔒 Autenticación Requerida
