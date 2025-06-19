@@ -1,8 +1,8 @@
 import express from 'express';
 import { register, login, getProfile, verifyEmail, resendVerification, checkVerificationStatus } from '../controllers/authController.js';
-import { authMiddleware } from '../middlewares/auth.js';
-import { validateRequest, userRegisterSchema, userLoginSchema, verificationCodeSchema, resendVerificationSchema } from '../middlewares/validation.js';
-import { authRateLimiter } from '../middlewares/rateLimiter.js';
+import { authMiddleware } from '../middlewares/auth.middleware.js';
+import { validateRequest, userRegisterSchema, userLoginSchema, verificationCodeSchema, resendVerificationSchema } from '../middlewares/validation.middleware.js';
+import { authRateLimiter } from '../middlewares/rateLimiter.middleware.js';
 
 const router = express.Router();
 

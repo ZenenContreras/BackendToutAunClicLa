@@ -5,8 +5,8 @@ import {
   updateReview, 
   deleteReview 
 } from '../controllers/reviewController.js';
-import { authMiddleware } from '../middlewares/auth.js';
-import { validateRequest, reviewSchema } from '../middlewares/validation.js';
+import { authMiddleware } from '../middlewares/auth.middleware.js';
+import { validateRequest, reviewSchema } from '../middlewares/validation.middleware.js';
 
 const router = express.Router();
 

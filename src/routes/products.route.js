@@ -6,8 +6,8 @@ import {
   updateProduct, 
   deleteProduct 
 } from '../controllers/productController.js';
-import { authMiddleware, adminMiddleware } from '../middlewares/auth.js';
-import { validateRequest, productSchema } from '../middlewares/validation.js';
+import { authMiddleware, adminMiddleware } from '../middlewares/auth.middleware.js';
+import { validateRequest, productSchema } from '../middlewares/validation.middleware.js';
 
 const router = express.Router();
 

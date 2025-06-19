@@ -5,20 +5,20 @@ import morgan from 'morgan';
 import compression from 'compression';
 import './config/env.js';
 
-import { errorHandler } from './middlewares/errorHandler.js';
-import { rateLimiter } from './middlewares/rateLimiter.js';
+import { errorHandler } from './middlewares/errorHandler.middleware.js';
+import { rateLimiter } from './middlewares/rateLimiter.middleware.js';
 
 // Import routes
-import authRoutes from './routes/auth.js';
-import userRoutes from './routes/users.js';
-import productRoutes from './routes/products.js';
-import addressRoutes from './routes/addresses.js';
-import reviewRoutes from './routes/reviews.js';
-import cartRoutes from './routes/cart.js';
-import orderRoutes from './routes/orders.js';
-import stripeRoutes from './routes/stripe.js';
-import favoritesRoutes from './routes/favorites.js';
-import arcjectMiddleware from './middlewares/arcjet.js';
+import authRoutes from './routes/auth.route.js';
+import userRoutes from './routes/users.route.js';
+import productRoutes from './routes/products.route.js';
+import addressRoutes from './routes/addresses.route.js';
+import reviewRoutes from './routes/reviews.route.js';
+import cartRoutes from './routes/cart.route.js';
+import orderRoutes from './routes/orders.route.js';
+import stripeRoutes from './routes/stripe.route.js';
+import favoritesRoutes from './routes/favorites.route.js';
+import arcjectMiddleware from './middlewares/arcjet.middleware.js';
 
 const app = express();
 
@@ -33,6 +33,8 @@ app.use(cors({
 }));
 
 // Rate limiting
+app.use(rateLimiter);
+
 app.use(arcjectMiddleware);
 
 // Logging

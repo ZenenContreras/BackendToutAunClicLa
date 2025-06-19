@@ -8,9 +8,9 @@ import {
 import { 
   changePassword 
 } from '../controllers/authController.js';
-import { authMiddleware, adminMiddleware } from '../middlewares/auth.js';
+import { authMiddleware, adminMiddleware } from '../middlewares/auth.middleware.js';
 import Joi from 'joi';
-import { validateRequest } from '../middlewares/validation.js';
+import { validateRequest } from '../middlewares/validation.middleware.js';
 
 const router = express.Router();
 

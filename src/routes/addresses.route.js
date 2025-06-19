@@ -5,8 +5,8 @@ import {
   updateAddress, 
   deleteAddress 
 } from '../controllers/addressController.js';
-import { authMiddleware } from '../middlewares/auth.js';
-import { validateRequest, addressSchema } from '../middlewares/validation.js';
+import { authMiddleware } from '../middlewares/auth.middleware.js';
+import { validateRequest, addressSchema } from '../middlewares/validation.middleware.js';
 
 const router = express.Router();
 

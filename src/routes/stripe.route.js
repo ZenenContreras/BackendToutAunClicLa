@@ -7,9 +7,9 @@ import {
   deletePaymentMethod, 
   handleWebhook 
 } from '../controllers/stripeController.js';
-import { authMiddleware } from '../middlewares/auth.js';
+import { authMiddleware } from '../middlewares/auth.middleware.js';
 import Joi from 'joi';
-import { validateRequest } from '../middlewares/validation.js';
+import { validateRequest } from '../middlewares/validation.middleware.js';
 
 const router = express.Router();
 

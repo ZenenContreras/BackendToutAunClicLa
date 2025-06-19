@@ -5,8 +5,8 @@ import {
   removeFromFavorites,
   checkFavoriteStatus
 } from '../controllers/favoritesController.js';
-import { authMiddleware } from '../middlewares/auth.js';
-import { validateRequest, favoriteSchema } from '../middlewares/validation.js';
+import { authMiddleware } from '../middlewares/auth.middleware.js';
+import { validateRequest, favoriteSchema } from '../middlewares/validation.middleware.js';
 
 const router = express.Router();
 

@@ -8,9 +8,9 @@ import {
   applyCoupon,
   getCartWithCoupon
 } from '../controllers/cartController.js';
-import { authMiddleware } from '../middlewares/auth.js';
-import { validateRequest, cartItemSchema, couponSchema } from '../middlewares/validation.js';
-import { couponRateLimiter } from '../middlewares/rateLimiter.js';
+import { authMiddleware } from '../middlewares/auth.middleware.js';
+import { validateRequest, cartItemSchema, couponSchema } from '../middlewares/validation.middleware.js';
+import { couponRateLimiter } from '../middlewares/rateLimiter.middleware.js';
 
 const router = express.Router();
 
