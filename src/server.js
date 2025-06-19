@@ -33,9 +33,8 @@ app.use(cors({
 }));
 
 // Rate limiting
-app.use(rateLimiter);
-
 app.use(arcjectMiddleware);
+app.use(rateLimiter);
 
 // Logging
 app.use(morgan('combined'));
