@@ -4,7 +4,8 @@ Sistema de gestión de productos favoritos con validaciones y paginación.
 
 ## Base URL
 ```
-http://localhost:3000/api/favorites
+https://backendtoutaunclicla-production.up.railway.app/api/v1/favorites
+
 ```
 
 **🔒 Autenticación Requerida**: Todos los endpoints requieren token JWT válido.
