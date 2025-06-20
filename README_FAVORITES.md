@@ -224,13 +224,13 @@ Elimina un producto específico de la lista de favoritos.
 
 #### 1. Verificar si un producto es favorito
 ```bash
-curl -X GET http://localhost:5500/api/v1/favorites/status/123 \
+curl -X GET https://backendtoutaunclicla-production.up.railway.app/api/v1/favorites/status/123 \
   -H "Authorization: Bearer <token>"
 ```
 
 #### 2. Agregar producto a favoritos
 ```bash
-curl -X POST http://localhost:5500/api/v1/favorites \
+curl -X POST https://backendtoutaunclicla-production.up.railway.app/api/v1/favorites \
   -H "Authorization: Bearer <token>" \
   -H "Content-Type: application/json" \
   -d '{
@@ -240,19 +240,19 @@ curl -X POST http://localhost:5500/api/v1/favorites \
 
 #### 3. Obtener todos los favoritos
 ```bash
-curl -X GET http://localhost:5500/api/v1/favorites \
+curl -X GET https://backendtoutaunclicla-production.up.railway.app/api/v1/favorites \
   -H "Authorization: Bearer <token>"
 ```
 
 #### 4. Obtener favoritos paginados
 ```bash
-curl -X GET "http://localhost:5500/api/v1/favorites?page=2&limit=10" \
+curl -X GET "https://backendtoutaunclicla-production.up.railway.app/api/v1/favorites?page=2&limit=10" \
   -H "Authorization: Bearer <token>"
 ```
 
 #### 5. Eliminar de favoritos
 ```bash
-curl -X DELETE http://localhost:5500/api/v1/favorites/123 \
+curl -X DELETE https://backendtoutaunclicla-production.up.railway.app/api/v1/favorites123 \
   -H "Authorization: Bearer <token>"
 ```
 

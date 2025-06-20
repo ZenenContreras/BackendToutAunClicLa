@@ -6,6 +6,7 @@ const getAllProducts = async (req, res) => {
       page = 1, 
       limit = 20, 
       category, 
+      subcategory,
       search, 
       sortBy = 'fecha_creacion', 
       sortOrder = 'desc' 
@@ -18,7 +19,8 @@ const getAllProducts = async (req, res) => {
       .select(`
         *,
         reviews(estrellas),
-        categorias(nombre)
+        categorias(id, nombre),
+        subcategorias(id, nombre, Imagen, Descripcion)
       `, { count: 'exact' });
 
     // No filtrar por 'activo' ya que la columna no existe en la tabla actual
@@ -26,6 +28,11 @@ const getAllProducts = async (req, res) => {
     // Filter by category
     if (category) {
       query = query.eq('categoria_id', category);
+    }
+
+    // Filter by subcategory
+    if (subcategory) {
+      query = query.eq('subcategoria_id', subcategory);
     }
 
     // Search functionality
@@ -80,7 +87,8 @@ const getProductById = async (req, res) => {
       .from('productos')
       .select(`
         *,
-        categorias(nombre),
+        categorias(id, nombre),
+        subcategorias(id, nombre, Imagen, Descripcion),
         reviews(
           id,
           estrellas,
@@ -120,7 +128,7 @@ const getProductById = async (req, res) => {
 
 const createProduct = async (req, res) => {
   try {
-    const { name, description, price, categoryId, images, stock } = req.body;
+    const { name, description, price, categoryId, subcategoryId, images, stock, provedor } = req.body;
 
     const { data: product, error } = await supabaseAdmin
       .from('productos')
@@ -129,10 +137,16 @@ const createProduct = async (req, res) => {
         descripcion: description,
         precio: price,
         categoria_id: categoryId,
+        subcategoria_id: subcategoryId,
         imagen_principal: images?.[0] || null, // Usar la primera imagen como principal
-        stock: stock || 0
+        stock: stock || 0,
+        provedor: provedor || null
       }])
-      .select()
+      .select(`
+        *,
+        categorias(id, nombre),
+        subcategorias(id, nombre, Imagen, Descripcion)
+      `)
       .single();
 
     if (error) {
@@ -155,7 +169,7 @@ const createProduct = async (req, res) => {
 const updateProduct = async (req, res) => {
   try {
     const { id } = req.params;
-    const { name, description, price, categoryId, images, stock } = req.body;
+    const { name, description, price, categoryId, subcategoryId, images, stock, provedor } = req.body;
 
     // Map frontend fields to Spanish database fields
     const updateData = {};
@@ -163,14 +177,20 @@ const updateProduct = async (req, res) => {
     if (description !== undefined) updateData.descripcion = description;
     if (price !== undefined) updateData.precio = price;
     if (categoryId !== undefined) updateData.categoria_id = categoryId;
+    if (subcategoryId !== undefined) updateData.subcategoria_id = subcategoryId;
     if (images !== undefined && images.length > 0) updateData.imagen_principal = images[0];
     if (stock !== undefined) updateData.stock = stock;
+    if (provedor !== undefined) updateData.provedor = provedor;
 
     const { data: product, error } = await supabaseAdmin
       .from('productos')
       .update(updateData)
       .eq('id', id)
-      .select()
+      .select(`
+        *,
+        categorias(id, nombre),
+        subcategorias(id, nombre, Imagen, Descripcion)
+      `)
       .single();
 
     if (error) {
@@ -237,10 +257,97 @@ const deleteProduct = async (req, res) => {
   }
 };
 
+const getCategories = async (req, res) => {
+  try {
+    const { data: categories, error } = await supabaseAdmin
+      .from('categorias')
+      .select('*')
+      .order('nombre', { ascending: true });
+
+    if (error) {
+      throw error;
+    }
+
+    res.json({ categories });
+  } catch (error) {
+    console.error('Get categories error:', error);
+    res.status(500).json({
+      error: 'Failed to get categories',
+      message: error.message
+    });
+  }
+};
+
+const getSubcategories = async (req, res) => {
+  try {
+    const { categoryId } = req.query;
+
+    let query = supabaseAdmin
+      .from('subcategorias')
+      .select(`
+        *,
+        categorias(id, nombre)
+      `)
+      .order('nombre', { ascending: true });
+
+    // Filter by category if provided
+    if (categoryId) {
+      query = query.eq('categoria_id', categoryId);
+    }
+
+    const { data: subcategories, error } = await query;
+
+    if (error) {
+      throw error;
+    }
+
+    res.json({ subcategories });
+  } catch (error) {
+    console.error('Get subcategories error:', error);
+    res.status(500).json({
+      error: 'Failed to get subcategories',
+      message: error.message
+    });
+  }
+};
+
+const getSubcategoryById = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const { data: subcategory, error } = await supabaseAdmin
+      .from('subcategorias')
+      .select(`
+        *,
+        categorias(id, nombre)
+      `)
+      .eq('id', id)
+      .single();
+
+    if (error || !subcategory) {
+      return res.status(404).json({
+        error: 'Subcategory not found',
+        message: 'The requested subcategory does not exist'
+      });
+    }
+
+    res.json(subcategory);
+  } catch (error) {
+    console.error('Get subcategory error:', error);
+    res.status(500).json({
+      error: 'Failed to get subcategory',
+      message: error.message
+    });
+  }
+};
+
 export {
   getAllProducts,
   getProductById,
   createProduct,
   updateProduct,
-  deleteProduct
+  deleteProduct,
+  getCategories,
+  getSubcategories,
+  getSubcategoryById
 };

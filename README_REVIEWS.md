@@ -255,17 +255,17 @@ Elimina una reseña existente. Solo el autor puede eliminar su reseña.
 
 #### 1. Ver reseñas de un producto
 ```bash
-curl -X GET http://localhost:5500/api/v1/reviews/product/123
+curl -X GET https://backendtoutaunclicla-production.up.railway.app/api/v1/reviews/product/123
 ```
 
 #### 2. Ver reseñas con paginación
 ```bash
-curl -X GET "http://localhost:5500/api/v1/reviews/product/123?page=2&limit=5"
+curl -X GET "https://backendtoutaunclicla-production.up.railway.app/api/v1/reviews/product/123?page=2&limit=5"
 ```
 
 #### 3. Crear una reseña (requiere haber comprado)
 ```bash
-curl -X POST http://localhost:5500/api/v1/reviews \
+curl -X POST https://backendtoutaunclicla-production.up.railway.app/api/v1/reviews \
   -H "Authorization: Bearer <token>" \
   -H "Content-Type: application/json" \
   -d '{
@@ -277,7 +277,7 @@ curl -X POST http://localhost:5500/api/v1/reviews \
 
 #### 4. Actualizar reseña
 ```bash
-curl -X PUT http://localhost:5500/api/v1/reviews/<review_id> \
+curl -X PUT https://backendtoutaunclicla-production.up.railway.app/api/v1/reviews/<review_id> \
   -H "Authorization: Bearer <token>" \
   -H "Content-Type: application/json" \
   -d '{
@@ -288,7 +288,7 @@ curl -X PUT http://localhost:5500/api/v1/reviews/<review_id> \
 
 #### 5. Eliminar reseña
 ```bash
-curl -X DELETE http://localhost:5500/api/v1/reviews/<review_id> \
+curl -X DELETE https://backendtoutaunclicla-production.up.railway.app/api/v1/reviews/<review_id> \
   -H "Authorization: Bearer <token>"
 ```
 

@@ -356,308 +356,320 @@ Elimina (desactiva) un producto. Solo administradores pueden eliminar productos.
 
 ---
 
-## Casos de Uso Comunes
+## Endpoints de Categorías y Subcategorías
 
-### Catálogo Público
+### GET /categories
+Obtiene todas las categorías disponibles.
 
-#### 1. Obtener productos populares
-```bash
-curl -X GET "http://localhost:5500/api/v1/products?sort=total_vendidos&order=desc&limit=10"
+**Response (200):**
+```json
+{
+  "categories": [
+    {
+      "id": 1,
+      "nombre": "Boutique",
+      "fecha_creacion": "2024-01-01T00:00:00.000Z"
+    },
+    {
+      "id": 2,
+      "nombre": "Comidas",
+      "fecha_creacion": "2024-01-01T00:00:00.000Z"
+    }
+  ]
+}
 ```
 
-#### 2. Buscar productos
-```bash
-curl -X GET "http://localhost:5500/api/v1/products?search=iPhone&category=1"
+### GET /subcategories
+Obtiene todas las subcategorías, opcionalmente filtradas por categoría.
+
+**Query Parameters:**
+- `categoryId` (opcional): Filtrar subcategorías por ID de categoría
+
+**Response (200):**
+```json
+{
+  "subcategories": [
+    {
+      "id": 1,
+      "nombre": "McDonald's",
+      "categoria_id": 2,
+      "Imagen": "https://ejemplo.com/mcdonalds-logo.jpg",
+      "Descripcion": "Restaurante de comida rápida con hamburguesas, papas fritas y más.",
+      "categorias": {
+        "id": 2,
+        "nombre": "Comidas"
+      }
+    },
+    {
+      "id": 2,
+      "nombre": "KFC",
+      "categoria_id": 2,
+      "Imagen": "https://ejemplo.com/kfc-logo.jpg",
+      "Descripcion": "Restaurante especializado en pollo frito y acompañamientos.",
+      "categorias": {
+        "id": 2,
+        "nombre": "Comidas"
+      }
+    }
+  ]
+}
 ```
 
-#### 3. Filtrar por precio
-```bash
-curl -X GET "http://localhost:5500/api/v1/products?minPrice=100&maxPrice=500"
+### GET /subcategories/:id
+Obtiene información detallada de una subcategoría específica.
+
+**URL Parameters:**
+- `id`: ID de la subcategoría (número entero)
+
+**Response (200):**
+```json
+{
+  "id": 1,
+  "nombre": "McDonald's",
+  "categoria_id": 2,
+  "Imagen": "https://ejemplo.com/mcdonalds-logo.jpg",
+  "Descripcion": "Restaurante de comida rápida con hamburguesas, papas fritas y más.",
+  "categorias": {
+    "id": 2,
+    "nombre": "Comidas"
+  }
+}
 ```
 
-#### 4. Obtener producto específico
-```bash
-curl -X GET http://localhost:5500/api/v1/products/123
+**Errores Posibles:**
+| Código | Error | Descripción |
+|--------|-------|-------------|
+| 404 | Subcategory not found | Subcategoría no encontrada |
+| 500 | Internal Server Error | Error del servidor |
+
+---
+
+## Productos con Categorías y Subcategorías
+
+Los endpoints de productos ahora incluyen información completa de categorías y subcategorías:
+
+### GET / (Productos actualizados)
+Ahora incluye filtro por subcategoría y datos completos.
+
+**Query Parameters adicionales:**
+- `subcategory` (opcional): Filtrar por ID de subcategoría
+
+**Response actualizada (200):**
+```json
+{
+  "products": [
+    {
+      "id": 123,
+      "nombre": "Big Mac",
+      "descripcion": "La hamburguesa más famosa de McDonald's",
+      "precio": 8.50,
+      "categoria_id": 2,
+      "subcategoria_id": 1,
+      "imagen_principal": "https://ejemplo.com/big-mac.jpg",
+      "stock": 50,
+      "provedor": "McDonald's Corp",
+      "fecha_creacion": "2024-01-01T00:00:00.000Z",
+      "categorias": {
+        "id": 2,
+        "nombre": "Comidas"
+      },
+      "subcategorias": {
+        "id": 1,
+        "nombre": "McDonald's",
+        "Imagen": "https://ejemplo.com/mcdonalds-logo.jpg",
+        "Descripcion": "Restaurante de comida rápida con hamburguesas, papas fritas y más."
+      },
+      "reviews": [
+        {
+          "estrellas": 5
+        }
+      ],
+      "averageRating": 4.5,
+      "reviewCount": 10
+    }
+  ],
+  "pagination": {
+    "currentPage": 1,
+    "totalPages": 5,
+    "totalItems": 100,
+    "itemsPerPage": 20
+  }
+}
 ```
 
-### Administración (requiere token admin)
+### POST / (Crear Producto actualizado)
+Ahora acepta subcategoría y proveedor.
 
-#### 5. Crear producto
+**Request Body actualizado:**
+```json
+{
+  "name": "Nuevo Producto",
+  "description": "Descripción detallada del producto",
+  "price": 299.99,
+  "categoryId": 2,
+  "subcategoryId": 1,
+  "images": [
+    "https://example.com/producto-1.jpg"
+  ],
+  "stock": 50,
+  "provedor": "Nombre del proveedor"
+}
+```
+
+---
+
+## Ejemplos de Uso con Categorías y Subcategorías
+
+### 1. Obtener todas las categorías
 ```bash
-curl -X POST http://localhost:5500/api/v1/products \
+curl -X GET "https://backendtoutaunclicla-production.up.railway.app/api/v1/products/categories"
+```
+
+### 2. Obtener subcategorías de comidas
+```bash
+curl -X GET "https://backendtoutaunclicla-production.up.railway.app/api/v1/products/subcategories?categoryId=2"
+```
+
+### 3. Obtener productos de McDonald's
+```bash
+curl -X GET "https://backendtoutaunclicla-production.up.railway.app/api/v1/products?subcategory=1"
+```
+
+### 4. Obtener información de un restaurante específico
+```bash
+curl -X GET "https://backendtoutaunclicla-production.up.railway.app/api/v1/products/subcategories/1"
+```
+
+### 5. Crear producto de restaurante
+```bash
+curl -X POST https://backendtoutaunclicla-production.up.railway.app/api/v1/products \
   -H "Authorization: Bearer <admin_token>" \
   -H "Content-Type: application/json" \
   -d '{
-    "name": "Nuevo Producto",
-    "description": "Descripción detallada",
-    "price": 199.99,
-    "categoryId": 1,
-    "stock": 100
-  }'
-```
-
-#### 6. Actualizar producto
-```bash
-curl -X PUT http://localhost:5500/api/v1/products/123 \
-  -H "Authorization: Bearer <admin_token>" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "price": 189.99,
-    "stock": 150
+    "name": "McNuggets 6 piezas",
+    "description": "Nuggets de pollo crujientes",
+    "price": 5.99,
+    "categoryId": 2,
+    "subcategoryId": 1,
+    "stock": 100,
+    "provedor": "McDonald'\''s Corp"
   }'
 ```
 
 ---
 
-## Integración con Frontend
+## Integración Frontend con Categorías
 
-### Catálogo de Productos
+### Cargar categorías y subcategorías
 ```javascript
-// Función para obtener productos con filtros
-async function getProducts(filters = {}) {
+// Obtener todas las categorías
+async function getCategories() {
   try {
-    const params = new URLSearchParams();
+    const response = await fetch('/api/v1/products/categories');
+    const data = await response.json();
+    return data.categories;
+  } catch (error) {
+    console.error('Error fetching categories:', error);
+    throw error;
+  }
+}
+
+// Obtener subcategorías por categoría
+async function getSubcategories(categoryId = null) {
+  try {
+    const url = categoryId 
+      ? `/api/v1/products/subcategories?categoryId=${categoryId}`
+      : '/api/v1/products/subcategories';
     
-    Object.keys(filters).forEach(key => {
-      if (filters[key] !== undefined && filters[key] !== '') {
-        params.append(key, filters[key]);
-      }
-    });
-    
+    const response = await fetch(url);
+    const data = await response.json();
+    return data.subcategories;
+  } catch (error) {
+    console.error('Error fetching subcategories:', error);
+    throw error;
+  }
+}
+
+// Obtener información de restaurante
+async function getRestaurantInfo(subcategoryId) {
+  try {
+    const response = await fetch(`/api/v1/products/subcategories/${subcategoryId}`);
+    return await response.json();
+  } catch (error) {
+    console.error('Error fetching restaurant info:', error);
+    throw error;
+  }
+}
+
+// Obtener productos por restaurante
+async function getProductsByRestaurant(subcategoryId, filters = {}) {
+  try {
+    const params = new URLSearchParams({ ...filters, subcategory: subcategoryId });
     const response = await fetch(`/api/v1/products?${params}`);
     return await response.json();
   } catch (error) {
-    console.error('Error fetching products:', error);
-    throw error;
-  }
-}
-
-// Función para obtener producto detallado
-async function getProductDetails(productId) {
-  try {
-    const response = await fetch(`/api/v1/products/${productId}`);
-    
-    if (!response.ok) {
-      throw new Error('Product not found');
-    }
-    
-    return await response.json();
-  } catch (error) {
-    console.error('Error fetching product details:', error);
-    throw error;
-  }
-}
-
-// Función para buscar productos
-async function searchProducts(query, filters = {}) {
-  try {
-    const searchFilters = { ...filters, search: query };
-    return await getProducts(searchFilters);
-  } catch (error) {
-    console.error('Error searching products:', error);
+    console.error('Error fetching restaurant products:', error);
     throw error;
   }
 }
 ```
 
-### Administración de Productos
-```javascript
-// Función para crear producto (admin)
-async function createProduct(productData, adminToken) {
-  try {
-    const response = await fetch('/api/v1/products', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${adminToken}`,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(productData)
-    });
-    
-    if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.message);
-    }
-    
-    return await response.json();
-  } catch (error) {
-    console.error('Error creating product:', error);
-    throw error;
-  }
-}
+### Ejemplo de componente React para menú de restaurante
+```jsx
+import React, { useState, useEffect } from 'react';
 
-// Función para actualizar stock (admin)
-async function updateProductStock(productId, newStock, adminToken) {
-  try {
-    const response = await fetch(`/api/v1/products/${productId}`, {
-      method: 'PUT',
-      headers: {
-        'Authorization': `Bearer ${adminToken}`,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({ stock: newStock })
-    });
-    
-    return await response.json();
-  } catch (error) {
-    console.error('Error updating stock:', error);
-    throw error;
-  }
-}
-```
+const RestaurantMenu = ({ restaurantId }) => {
+  const [restaurant, setRestaurant] = useState(null);
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
 
----
+  useEffect(() => {
+    const loadRestaurantData = async () => {
+      try {
+        // Cargar información del restaurante
+        const restaurantInfo = await getRestaurantInfo(restaurantId);
+        setRestaurant(restaurantInfo);
 
-## Campos de Respuesta
-
-### Product Object (Básico)
-```typescript
-interface Product {
-  id: number;
-  nombre: string;
-  descripcion: string;
-  precio: number;
-  precio_anterior?: number;
-  descuento_porcentaje?: number;
-  categoria_id: number;
-  imagenes: string[];
-  imagen_principal: string;
-  stock: number;
-  activo: boolean;
-  fecha_creacion: string;
-  fecha_actualizacion?: string;
-}
-```
-
-### Product Object (Detallado)
-```typescript
-interface ProductDetailed extends Product {
-  categoria: {
-    id: number;
-    nombre: string;
-    descripcion: string;
-  };
-  especificaciones?: Record<string, any>;
-  estadisticas: {
-    promedio_calificacion: number;
-    total_reviews: number;
-    total_favoritos: number;
-    total_vendidos: number;
-    distribucion_calificaciones: {
-      "5": number;
-      "4": number;
-      "3": number;
-      "2": number;
-      "1": number;
-    };
-  };
-  disponibilidad: {
-    en_stock: boolean;
-    cantidad_disponible: number;
-    tiempo_entrega: string;
-    envio_gratis: boolean;
-  };
-}
-```
-
----
-
-## Filtros Disponibles
-
-### Búsqueda por Texto
-- Busca en nombre y descripción del producto
-- Búsqueda insensible a mayúsculas/minúsculas
-- Soporte para búsqueda parcial
-
-### Filtros Numéricos
-- **Precio**: `minPrice`, `maxPrice`
-- **Calificación**: `minRating` (1-5)
-- **Stock**: `inStock` (boolean)
-
-### Filtros por Categoría
-- **category**: ID de categoría específica
-- **categories**: Array de IDs de categorías
-
-### Ordenamiento
-- **sort**: `id`, `nombre`, `precio`, `fecha_creacion`, `promedio_calificacion`, `total_vendidos`
-- **order**: `asc`, `desc`
-
----
-
-## Reglas de Negocio
-
-### Estados de Producto
-- **activo**: true/false - Determina si el producto se muestra públicamente
-- **stock**: 0 o mayor - Cantidad disponible
-- **precio**: Siempre mayor que 0
-
-### Gestión de Stock
-- El stock se reduce automáticamente con cada venta
-- Stock 0 = "Agotado" pero el producto sigue visible
-- Stock negativo no está permitido
-
-### Imágenes
-- La primera imagen del array se considera imagen principal
-- Se admiten URLs externas (CDN recomendado)
-- Formatos soportados: JPG, PNG, WebP
-
-### Categorías
-- Todo producto debe tener una categoría válida
-- Las categorías inactivas ocultan sus productos
-
----
-
-## SEO y Performance
-
-### Optimizaciones Implementadas
-- Paginación para listas grandes
-- Índices de base de datos en campos de búsqueda
-- Caché de productos populares
-- Compresión de imágenes (recomendado en CDN)
-
-### Metadatos para SEO
-```json
-{
-  "seo": {
-    "title": "iPhone 14 Pro Max - 128GB - ToutAunClicLa",
-    "description": "Compra el iPhone 14 Pro Max con el mejor precio...",
-    "keywords": ["iPhone", "smartphone", "Apple", "128GB"],
-    "canonical": "https://toutaunclicla.com/products/123",
-    "images": [
-      {
-        "url": "https://cdn.toutaunclicla.com/iphone14-main.jpg",
-        "alt": "iPhone 14 Pro Max Azul"
+        // Cargar productos del restaurante
+        const restaurantProducts = await getProductsByRestaurant(restaurantId);
+        setProducts(restaurantProducts.products);
+      } catch (error) {
+        console.error('Error loading restaurant data:', error);
+      } finally {
+        setLoading(false);
       }
-    ]
-  }
-}
+    };
+
+    loadRestaurantData();
+  }, [restaurantId]);
+
+  if (loading) return <div>Cargando...</div>;
+
+  return (
+    <div className="restaurant-menu">
+      <div className="restaurant-header">
+        <img src={restaurant.Imagen} alt={restaurant.nombre} />
+        <div>
+          <h1>{restaurant.nombre}</h1>
+          <p>{restaurant.Descripcion}</p>
+        </div>
+      </div>
+      
+      <div className="menu-items">
+        {products.map(product => (
+          <div key={product.id} className="menu-item">
+            <img src={product.imagen_principal} alt={product.nombre} />
+            <div>
+              <h3>{product.nombre}</h3>
+              <p>{product.descripcion}</p>
+              <span className="price">${product.precio}</span>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
 ```
 
 ---
-
-## Analytics y Métricas
-
-### Métricas por Producto
-- Vistas del producto
-- Conversión de vista a compra
-- Tiempo promedio en página de producto
-- Productos agregados al carrito
-- Productos agregados a favoritos
-
-### Endpoints de Analytics (admin)
-```
-GET /api/v1/products/analytics/popular
-GET /api/v1/products/analytics/conversion
-GET /api/v1/products/analytics/revenue
-```
-
----
-
-## Notas Importantes
-
-- Los productos eliminados se marcan como `activo: false` (soft delete)
-- Las imágenes deben estar en un CDN para mejor performance
-- Se recomienda implementar caché Redis para productos populares
-- Los precios se almacenan con precisión decimal
-- Las estadísticas se calculan en tiempo real o via jobs programados
-- Se mantiene historial de cambios de precios para analytics

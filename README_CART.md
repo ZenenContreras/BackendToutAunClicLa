@@ -326,7 +326,7 @@ Aplica un cupón de descuento al carrito.
 #### 1. Agregar productos
 ```bash
 # Agregar producto 1
-curl -X POST http://localhost:5500/api/v1/cart/items \
+curl -X POST https://backendtoutaunclicla-production.up.railway.app/api/v1/cart/items \
   -H "Authorization: Bearer <token>" \
   -H "Content-Type: application/json" \
   -d '{
@@ -335,7 +335,7 @@ curl -X POST http://localhost:5500/api/v1/cart/items \
   }'
 
 # Agregar producto 2
-curl -X POST http://localhost:5500/api/v1/cart/items \
+curl -X POST https://backendtoutaunclicla-production.up.railway.app/api/v1/cart/items \
   -H "Authorization: Bearer <token>" \
   -H "Content-Type: application/json" \
   -d '{
@@ -346,13 +346,13 @@ curl -X POST http://localhost:5500/api/v1/cart/items \
 
 #### 2. Ver carrito
 ```bash
-curl -X GET http://localhost:5500/api/v1/cart \
+curl -X GET https://backendtoutaunclicla-production.up.railway.app/api/v1/cart/ \
   -H "Authorization: Bearer <token>"
 ```
 
 #### 3. Aplicar cupón
 ```bash
-curl -X POST http://localhost:5500/api/v1/cart/apply-coupon \
+curl -X POST https://backendtoutaunclicla-production.up.railway.app/api/v1/cart/apply-coupon \
   -H "Authorization: Bearer <token>" \
   -H "Content-Type: application/json" \
   -d '{
@@ -362,13 +362,13 @@ curl -X POST http://localhost:5500/api/v1/cart/apply-coupon \
 
 #### 4. Ver carrito con descuento
 ```bash
-curl -X GET "http://localhost:5500/api/v1/cart/with-coupon?couponCode=DESCUENTO20" \
+curl -X GET "https://backendtoutaunclicla-production.up.railway.app/api/v1/cart/with-coupon?couponCode=DESCUENTO20" \
   -H "Authorization: Bearer <token>"
 ```
 
 #### 5. Actualizar cantidad
 ```bash
-curl -X PUT http://localhost:5500/api/v1/cart/items/<item_id> \
+curl -X PUT https://backendtoutaunclicla-production.up.railway.app/api/v1/cart/items/<item_id> \
   -H "Authorization: Bearer <token>" \
   -H "Content-Type: application/json" \
   -d '{

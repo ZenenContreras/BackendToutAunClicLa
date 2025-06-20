@@ -331,7 +331,7 @@ Content-Type: application/json
 
 #### 1. Actualizar perfil
 ```bash
-curl -X PUT http://localhost:5500/api/v1/users/profile \
+curl -X PUT https://backendtoutaunclicla-production.up.railway.app/api/v1/users/profile \
   -H "Authorization: Bearer <token>" \
   -H "Content-Type: application/json" \
   -d '{
@@ -343,7 +343,7 @@ curl -X PUT http://localhost:5500/api/v1/users/profile \
 
 #### 2. Cambiar contraseña
 ```bash
-curl -X PUT http://localhost:5500/api/v1/users/password \
+curl -X PUT https://backendtoutaunclicla-production.up.railway.app/api/v1/users/password \
   -H "Authorization: Bearer <token>" \
   -H "Content-Type: application/json" \
   -d '{
@@ -354,7 +354,7 @@ curl -X PUT http://localhost:5500/api/v1/users/password \
 
 #### 3. Eliminar cuenta
 ```bash
-curl -X DELETE http://localhost:5500/api/v1/users/account \
+curl -X DELETE https://backendtoutaunclicla-production.up.railway.app/api/v1/users/account \
   -H "Authorization: Bearer <token>" \
   -H "Content-Type: application/json" \
   -d '{
@@ -366,19 +366,19 @@ curl -X DELETE http://localhost:5500/api/v1/users/account \
 
 #### 4. Obtener todos los usuarios
 ```bash
-curl -X GET "http://localhost:5500/api/v1/users?page=1&limit=20&search=juan" \
+curl -X GET "https://backendtoutaunclicla-production.up.railway.app/api/v1/users?page=1&limit=20&search=juan" \
   -H "Authorization: Bearer <admin_token>"
 ```
 
 #### 5. Filtrar usuarios verificados
 ```bash
-curl -X GET "http://localhost:5500/api/v1/users?verified=true&sortBy=fecha_ultimo_login&sortOrder=desc" \
+curl -X GET "https://backendtoutaunclicla-production.up.railway.app/api/v1/users?verified=true&sortBy=fecha_ultimo_login&sortOrder=desc" \
   -H "Authorization: Bearer <admin_token>"
 ```
 
 #### 6. Bloquear usuario
 ```bash
-curl -X PUT http://localhost:5500/api/v1/users/550e8400-e29b-41d4-a716-446655440000/status \
+curl -X PUT https://backendtoutaunclicla-production.up.railway.app/api/v1/users/550e8400-e29b-41d4-a716-446655440000/status \
   -H "Authorization: Bearer <admin_token>" \
   -H "Content-Type: application/json" \
   -d '{
@@ -389,7 +389,7 @@ curl -X PUT http://localhost:5500/api/v1/users/550e8400-e29b-41d4-a716-446655440
 
 #### 7. Desbloquear usuario
 ```bash
-curl -X PUT http://localhost:5500/api/v1/users/550e8400-e29b-41d4-a716-446655440000/status \
+curl -X PUT https://backendtoutaunclicla-production.up.railway.app/api/v1/users/550e8400-e29b-41d4-a716-446655440000/status \
   -H "Authorization: Bearer <admin_token>" \
   -H "Content-Type: application/json" \
   -d '{
