@@ -1,3 +1,14 @@
+/**
+ * Product Controller
+ * 
+ * Handles all product-related operations including:
+ * - Canadian tax fields: TPS (Goods and Services Tax), TVQ (Quebec Sales Tax)
+ * - Multiple product images: imagen_principal, imagen_secundaria, imagen_terciaria
+ * - Provider/supplier information: provedor
+ * - Stock management and pricing
+ * - Product ratings and reviews
+ */
+
 import { supabaseAdmin } from '../config/supabase.js';
 
 const getAllProducts = async (req, res) => {
@@ -17,7 +28,20 @@ const getAllProducts = async (req, res) => {
     let query = supabaseAdmin
       .from('productos')
       .select(`
-        *,
+        id,
+        nombre,
+        descripcion,
+        precio,
+        categoria_id,
+        stock,
+        fecha_creacion,
+        imagen_principal,
+        imagen_secundaria,
+        imagen_terciaria,
+        subcategoria_id,
+        provedor,
+        TPS,
+        TVQ,
         reviews(estrellas),
         categorias(id, nombre),
         subcategorias(id, nombre, Imagen, Descripcion)
@@ -52,13 +76,16 @@ const getAllProducts = async (req, res) => {
       throw error;
     }
 
-    // Calculate average rating for each product
+    // Calculate average rating for each product and include all fields
     const productsWithRating = products.map(product => ({
       ...product,
       averageRating: product.reviews.length > 0 
         ? product.reviews.reduce((sum, review) => sum + review.estrellas, 0) / product.reviews.length
         : 0,
-      reviewCount: product.reviews.length
+      reviewCount: product.reviews.length,
+      // Canadian tax fields are included: TPS (Goods and Services Tax) and TVQ (Quebec Sales Tax)
+      // Additional images are included: imagen_secundaria, imagen_terciaria
+      // Provider/supplier info: provedor
     }));
 
     res.json({
@@ -86,7 +113,20 @@ const getProductById = async (req, res) => {
     const { data: product, error } = await supabaseAdmin
       .from('productos')
       .select(`
-        *,
+        id,
+        nombre,
+        descripcion,
+        precio,
+        categoria_id,
+        stock,
+        fecha_creacion,
+        imagen_principal,
+        imagen_secundaria,
+        imagen_terciaria,
+        subcategoria_id,
+        provedor,
+        TPS,
+        TVQ,
         categorias(id, nombre),
         subcategorias(id, nombre, Imagen, Descripcion),
         reviews(
@@ -107,7 +147,7 @@ const getProductById = async (req, res) => {
       });
     }
 
-    // Calculate average rating
+    // Calculate average rating and return product with all fields including new ones
     const averageRating = product.reviews.length > 0
       ? product.reviews.reduce((sum, review) => sum + review.estrellas, 0) / product.reviews.length
       : 0;
@@ -116,6 +156,7 @@ const getProductById = async (req, res) => {
       ...product,
       averageRating,
       reviewCount: product.reviews.length
+      // Product includes all fields: TPS, TVQ, imagen_secundaria, imagen_terciaria, provedor
     });
   } catch (error) {
     console.error('Get product error:', error);
@@ -128,7 +169,18 @@ const getProductById = async (req, res) => {
 
 const createProduct = async (req, res) => {
   try {
-    const { name, description, price, categoryId, subcategoryId, images, stock, provedor } = req.body;
+    const { 
+      name, 
+      description, 
+      price, 
+      categoryId, 
+      subcategoryId, 
+      images, 
+      stock, 
+      provedor,
+      tps,
+      tvq
+    } = req.body;
 
     const { data: product, error } = await supabaseAdmin
       .from('productos')
@@ -138,12 +190,29 @@ const createProduct = async (req, res) => {
         precio: price,
         categoria_id: categoryId,
         subcategoria_id: subcategoryId,
-        imagen_principal: images?.[0] || null, // Usar la primera imagen como principal
+        imagen_principal: images?.[0] || null,
+        imagen_secundaria: images?.[1] || null,
+        imagen_terciaria: images?.[2] || null,
         stock: stock || 0,
-        provedor: provedor || null
+        provedor: provedor || null,
+        TPS: tps || null,
+        TVQ: tvq || null
       }])
       .select(`
-        *,
+        id,
+        nombre,
+        descripcion,
+        precio,
+        categoria_id,
+        stock,
+        fecha_creacion,
+        imagen_principal,
+        imagen_secundaria,
+        imagen_terciaria,
+        subcategoria_id,
+        provedor,
+        TPS,
+        TVQ,
         categorias(id, nombre),
         subcategorias(id, nombre, Imagen, Descripcion)
       `)
@@ -169,7 +238,18 @@ const createProduct = async (req, res) => {
 const updateProduct = async (req, res) => {
   try {
     const { id } = req.params;
-    const { name, description, price, categoryId, subcategoryId, images, stock, provedor } = req.body;
+    const { 
+      name, 
+      description, 
+      price, 
+      categoryId, 
+      subcategoryId, 
+      images, 
+      stock, 
+      provedor,
+      tps,
+      tvq
+    } = req.body;
 
     // Map frontend fields to Spanish database fields
     const updateData = {};
@@ -178,16 +258,35 @@ const updateProduct = async (req, res) => {
     if (price !== undefined) updateData.precio = price;
     if (categoryId !== undefined) updateData.categoria_id = categoryId;
     if (subcategoryId !== undefined) updateData.subcategoria_id = subcategoryId;
-    if (images !== undefined && images.length > 0) updateData.imagen_principal = images[0];
+    if (images !== undefined) {
+      if (images[0] !== undefined) updateData.imagen_principal = images[0];
+      if (images[1] !== undefined) updateData.imagen_secundaria = images[1];
+      if (images[2] !== undefined) updateData.imagen_terciaria = images[2];
+    }
     if (stock !== undefined) updateData.stock = stock;
     if (provedor !== undefined) updateData.provedor = provedor;
+    if (tps !== undefined) updateData.TPS = tps;
+    if (tvq !== undefined) updateData.TVQ = tvq;
 
     const { data: product, error } = await supabaseAdmin
       .from('productos')
       .update(updateData)
       .eq('id', id)
       .select(`
-        *,
+        id,
+        nombre,
+        descripcion,
+        precio,
+        categoria_id,
+        stock,
+        fecha_creacion,
+        imagen_principal,
+        imagen_secundaria,
+        imagen_terciaria,
+        subcategoria_id,
+        provedor,
+        TPS,
+        TVQ,
         categorias(id, nombre),
         subcategorias(id, nombre, Imagen, Descripcion)
       `)
