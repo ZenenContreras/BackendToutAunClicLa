@@ -1,5 +1,19 @@
 import { supabaseAdmin } from '../config/supabase.js';
 
+// Helper function to calculate average rating for products
+const addAverageRating = (cartItems) => {
+  return cartItems.map(item => ({
+    ...item,
+    productos: {
+      ...item.productos,
+      averageRating: item.productos.reviews?.length > 0 
+        ? item.productos.reviews.reduce((sum, review) => sum + review.estrellas, 0) / item.productos.reviews.length
+        : 0,
+      reviewCount: item.productos.reviews?.length || 0
+    }
+  }));
+};
+
 const getCart = async (req, res) => {
   try {
     const userId = req.user.id;
@@ -26,9 +40,21 @@ const getCart = async (req, res) => {
         productos(
           id,
           nombre,
+          descripcion,
           precio,
+          precio_anterior,
+          categoria_id,
+          subcategoria_id,
           imagen_principal,
-          stock
+          imagen_secundaria,
+          imagen_terciaria,
+          stock,
+          provedor,
+          TPS,
+          TVQ,
+          categorias(id, nombre),
+          subcategorias(id, nombre, Imagen, Descripcion),
+          reviews(estrellas)
         )
       `)
       .eq('usuario_id', userId)
@@ -44,7 +70,7 @@ const getCart = async (req, res) => {
       .from('carrito')
       .select(`
         cantidad,
-        productos(precio)
+        productos(precio, TPS, TVQ)
       `)
       .eq('usuario_id', userId);
 
@@ -58,8 +84,11 @@ const getCart = async (req, res) => {
 
     const totalPages = Math.ceil(count / limit);
 
+    // Add average rating to cart items
+    const cartItemsWithRating = addAverageRating(cartItems);
+
     res.json({
-      cartItems,
+      cartItems: cartItemsWithRating,
       total,
       itemCount: count,
       pagination: {
@@ -69,6 +98,12 @@ const getCart = async (req, res) => {
         itemsPerPage: limit,
         hasNextPage: page < totalPages,
         hasPrevPage: page > 1
+      },
+      summary: {
+        totalItems: count,
+        totalQuantity: allItems.reduce((sum, item) => sum + item.cantidad, 0),
+        subtotal: total,
+        total: total
       }
     });
   } catch (error) {
@@ -184,7 +219,24 @@ const updateCartItem = async (req, res) => {
       .from('carrito')
       .select(`
         *,
-        productos(stock)
+        productos(
+          id,
+          nombre,
+          descripcion,
+          precio,
+          precio_anterior,
+          categoria_id,
+          subcategoria_id,
+          imagen_principal,
+          imagen_secundaria,
+          imagen_terciaria,
+          stock,
+          provedor,
+          TPS,
+          TVQ,
+          categorias(id, nombre),
+          subcategorias(id, nombre, Imagen, Descripcion)
+        )
       `)
       .eq('id', id)
       .eq('usuario_id', userId)
@@ -325,9 +377,20 @@ const applyCoupon = async (req, res) => {
         productos(
           id,
           nombre,
+          descripcion,
           precio,
+          precio_anterior,
+          categoria_id,
+          subcategoria_id,
           imagen_principal,
-          stock
+          imagen_secundaria,
+          imagen_terciaria,
+          stock,
+          provedor,
+          TPS,
+          TVQ,
+          categorias(id, nombre),
+          subcategorias(id, nombre, Imagen, Descripcion)
         )
       `)
       .eq('usuario_id', userId);
@@ -388,9 +451,21 @@ const getCartWithCoupon = async (req, res) => {
         productos(
           id,
           nombre,
+          descripcion,
           precio,
+          precio_anterior,
+          categoria_id,
+          subcategoria_id,
           imagen_principal,
-          stock
+          imagen_secundaria,
+          imagen_terciaria,
+          stock,
+          provedor,
+          TPS,
+          TVQ,
+          categorias(id, nombre),
+          subcategorias(id, nombre, Imagen, Descripcion),
+          reviews(estrellas)
         )
       `)
       .eq('usuario_id', userId);
@@ -427,13 +502,24 @@ const getCartWithCoupon = async (req, res) => {
 
     const total = Math.max(0, subtotal - discountAmount);
 
+    // Add average rating to cart items
+    const cartItemsWithRating = addAverageRating(cartItems);
+
     res.json({
-      cartItems,
+      cartItems: cartItemsWithRating,
       subtotal,
       discountAmount,
       total,
       itemCount: cartItems.length,
-      appliedCoupon
+      appliedCoupon,
+      summary: {
+        totalItems: cartItems.length,
+        totalQuantity: cartItems.reduce((sum, item) => sum + item.cantidad, 0),
+        subtotal,
+        total,
+        discount: discountAmount,
+        savings: discountAmount
+      }
     });
   } catch (error) {
     console.error('Get cart with coupon error:', error);
