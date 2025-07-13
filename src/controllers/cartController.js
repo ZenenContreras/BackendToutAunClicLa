@@ -78,9 +78,23 @@ const getCart = async (req, res) => {
       throw allItemsError;
     }
 
-    const total = allItems.reduce((sum, item) => {
+    const subtotal = allItems.reduce((sum, item) => {
       return sum + (item.productos.precio * item.cantidad);
     }, 0);
+
+    // Calculate total TPS and TVQ for all items in cart
+    const totalTPS = allItems.reduce((sum, item) => {
+      const itemTPS = item.productos.TPS || 0;
+      return sum + (itemTPS * item.cantidad);
+    }, 0);
+
+    const totalTVQ = allItems.reduce((sum, item) => {
+      const itemTVQ = item.productos.TVQ || 0;
+      return sum + (itemTVQ * item.cantidad);
+    }, 0);
+
+    const totalTaxes = totalTPS + totalTVQ;
+    const total = subtotal + totalTaxes;
 
     const totalPages = Math.ceil(count / limit);
 
@@ -102,7 +116,10 @@ const getCart = async (req, res) => {
       summary: {
         totalItems: count,
         totalQuantity: allItems.reduce((sum, item) => sum + item.cantidad, 0),
-        subtotal: total,
+        subtotal: subtotal,
+        totalTPS: totalTPS,
+        totalTVQ: totalTVQ,
+        totalTaxes: totalTaxes,
         total: total
       }
     });
@@ -479,6 +496,19 @@ const getCartWithCoupon = async (req, res) => {
       return sum + (item.productos.precio * item.cantidad);
     }, 0);
 
+    // Calculate total TPS and TVQ for all items in cart
+    const totalTPS = cartItems.reduce((sum, item) => {
+      const itemTPS = item.productos.TPS || 0;
+      return sum + (itemTPS * item.cantidad);
+    }, 0);
+
+    const totalTVQ = cartItems.reduce((sum, item) => {
+      const itemTVQ = item.productos.TVQ || 0;
+      return sum + (itemTVQ * item.cantidad);
+    }, 0);
+
+    const totalTaxes = totalTPS + totalTVQ;
+
     let discountAmount = 0;
     let appliedCoupon = null;
 
@@ -500,7 +530,7 @@ const getCartWithCoupon = async (req, res) => {
       }
     }
 
-    const total = Math.max(0, subtotal - discountAmount);
+    const total = Math.max(0, subtotal + totalTaxes - discountAmount);
 
     // Add average rating to cart items
     const cartItemsWithRating = addAverageRating(cartItems);
@@ -516,6 +546,9 @@ const getCartWithCoupon = async (req, res) => {
         totalItems: cartItems.length,
         totalQuantity: cartItems.reduce((sum, item) => sum + item.cantidad, 0),
         subtotal,
+        totalTPS: totalTPS,
+        totalTVQ: totalTVQ,
+        totalTaxes: totalTaxes,
         total,
         discount: discountAmount,
         savings: discountAmount
